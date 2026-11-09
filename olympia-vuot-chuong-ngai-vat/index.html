@@ -2,7 +2,7 @@
 <html lang="vi">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Olympia · Vượt chướng ngại vật | VSM Mini Game</title>
 <meta name="description" content="Giải 4 hàng ngang ngẫu nhiên, lật từng mảnh ảnh gợi ý và tìm từ khóa hàng dọc. Trò chơi ôn tập Lịch sử Việt Nam theo phong cách Olympia, chơi ngay trên điện thoại.">
 <meta name="theme-color" content="#071a33">
@@ -187,6 +187,45 @@ dialog[open] .pop{animation:pop .3s cubic-bezier(.2,1.4,.4,1)}
 }
 @media (max-width:380px){.brand h1{font-size:17px}.clue{font-size:16px}}
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+
+/* ---------- start screen v2 ---------- */
+.start{background:#050f22 radial-gradient(900px 520px at 50% 0%,#1d4f8f 0%,transparent 65%);display:flex;align-items:center;justify-content:center;padding:24px 16px}
+.start::before{content:'';position:absolute;top:0;left:0;right:0;bottom:0;pointer-events:none;
+  background-image:linear-gradient(#ffffff09 1px,transparent 1px),linear-gradient(90deg,#ffffff09 1px,transparent 1px);background-size:32px 32px;
+  -webkit-mask-image:radial-gradient(circle at 50% 25%,#000,transparent 70%);mask-image:radial-gradient(circle at 50% 25%,#000,transparent 70%)}
+.startCard{position:relative;width:100%;max-width:640px;text-align:center;margin:auto}
+.hero{display:block;width:100%;height:auto;border-radius:18px;border:1px solid #f5c04a66;
+  box-shadow:0 0 0 1px #ffffff10,0 24px 60px #000b,0 0 70px #2f7bff40;animation:rise .6s ease-out both}
+.sr{position:absolute!important;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.rules{list-style:none;margin:22px 0 0;padding:0;display:grid;grid-template-columns:repeat(3,1fr);gap:10px;animation:rise .6s .1s ease-out both}
+.rules li{background:linear-gradient(180deg,#ffffff12,#ffffff06);border:1px solid #ffffff1f;border-radius:14px;padding:14px 8px;font-size:14px;color:var(--muted);line-height:1.35}
+.rules b{display:block;color:var(--gold2);font-size:26px;font-weight:900;line-height:1.1;margin-bottom:4px}
+.startCard .primary{display:flex;justify-content:center;gap:12px;width:100%;max-width:380px;margin:26px auto 0;font-size:20px;padding:17px 24px;
+  box-shadow:0 10px 30px #f0ae2c66;animation:rise .6s .2s ease-out both}
+.startCard .primary:active{transform:scale(.98)}
+.soundHint{margin-top:14px;font-size:13px;color:#7f97b8}
+@keyframes rise{from{opacity:0;transform:translateY(14px)}}
+@media (max-width:600px){
+  .start{align-items:flex-start;padding:max(20px,env(safe-area-inset-top)) 14px 24px}
+  .startCard{margin-top:6vh}
+  .hero{border-radius:14px}
+  .rules{gap:8px;margin-top:18px}.rules li{padding:12px 4px;font-size:12.5px;border-radius:12px}.rules b{font-size:22px}
+  .startCard .primary{max-width:none;font-size:19px;margin-top:22px}
+  /* game screen polish */
+  .logo{flex:none;width:32px;height:32px;font-size:15px}
+  .brand>div{min-width:0}
+  .brand b{font-size:10px;letter-spacing:.2em}
+  .brand h1{font-size:16px;overflow:hidden;text-overflow:ellipsis}
+  #fsBtn{display:none}
+  .ghost{width:36px;height:36px;font-size:16px;flex:none}
+  body{background-attachment:fixed}
+  .board{box-shadow:0 10px 30px #0006}
+  .cell{border-radius:3px;border-color:#2f5f94}
+  .row{gap:2px}.rows{gap:4px}
+  .tag{font-size:11px;padding:4px 10px}
+  .question{box-shadow:0 10px 30px #0006}
+  .actions{bottom:max(10px,env(safe-area-inset-bottom))}
+}
 </style>
 </head>
 <body>
@@ -224,14 +263,18 @@ dialog[open] .pop{animation:pop .3s cubic-bezier(.2,1.4,.4,1)}
 
 <div class="start" id="start">
   <div class="startCard">
-    <div class="logo">O</div>
-    <div class="tag" style="align-self:center;display:inline-flex">Vòng thi</div>
-    <h2>Vượt chướng ngại vật</h2>
-    <p>4 hàng ngang được chọn ngẫu nhiên · mỗi hàng 15 giây.<br>Sau đó là câu hỏi từ khóa hàng dọc gồm 11 chữ cái.</p>
+    <img class="hero" src="og.jpg" width="1200" height="675" alt="Olympia · Vượt chướng ngại vật"
+      onerror="this.remove();document.getElementById('startTitle').classList.remove('sr')">
+    <h2 id="startTitle" class="sr">Vượt chướng ngại vật</h2>
+    <ul class="rules">
+      <li><b>4</b>hàng ngang ngẫu nhiên</li>
+      <li><b>15s</b>cho mỗi câu hỏi</li>
+      <li><b>11</b>chữ cái từ khóa</li>
+    </ul>
     <button class="primary" id="startBtn" type="button">Bắt đầu</button>
+    <div class="soundHint">🔊 Bật âm thanh để có trải nghiệm tốt nhất</div>
   </div>
 </div>
-
 <dialog id="popBox"><div class="pop">
   <div class="tag" id="popTag" style="margin:auto"></div>
   <h2 id="popTitle"></h2>
@@ -266,11 +309,8 @@ const KEY_HINT='Chiến dịch này đã đập tan kế hoạch Na-va, buộc t
 const KEY_NOTE='Hình ảnh quân dân ta kéo pháo lên đồi cao.';
 const ROUND=4,T_ROW=15,T_KEY=30;
 
-/* ================= ÂM THANH =================
-   Âm thanh tự tạo bằng Web Audio. Nếu trong thư mục sounds/ có file mp3 trùng tên
-   dưới đây thì game sẽ tự dùng file đó thay thế. */
-const FILES={intro:'sounds/bat-dau-cau-hoi.mp3',think:'sounds/suy-nghi.mp3',timeup:'sounds/het-gio.mp3',
-  reveal:'sounds/lat-dap-an.mp3',spin:'sounds/chon-hang.mp3',keyword:'sounds/cau-tu-khoa.mp3',fanfare:'sounds/mo-tu-khoa.mp3'};
+/* ================= ÂM THANH (tự tạo bằng Web Audio) ================= */
+const FILES={};
 const fileOk={};
 Object.entries(FILES).forEach(([k,src])=>{try{const a=new Audio();a.preload='auto';
   a.addEventListener('canplaythrough',()=>fileOk[k]=a,{once:true});a.addEventListener('error',()=>{},{once:true});a.src=src}catch(e){}});
