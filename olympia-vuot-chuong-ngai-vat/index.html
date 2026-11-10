@@ -601,7 +601,7 @@ const VOICE={list:{},cur:null,token:0,
   /* chỉ liệt kê file đang có trong nhac/doc/ (tránh lỗi 404). Thêm file mới thì thêm tên vào đây. */
   files:['cau-01.mp3','cau-02.mp3','cau-03.mp3','cau-04.mp3','cau-05.mp3','cau-06.mp3','cau-07.mp3','cau-08.mp3','cau-09.mp3','cau-10.mp3','cau-11.mp3'],
   load(){this.files.forEach(f=>{const n=f.replace(/\.[a-z0-9]+$/,'');const a=new Audio();a.preload='auto';
-    this.list[n]=a;a.addEventListener('error',()=>{if(this.list[n]===a)delete this.list[n]},{once:true});a.src='nhac/doc/'+f;try{a.load()}catch(e){}})},
+    this.list[n]=a;srcWithFallback(a,'nhac/doc/'+f,()=>{if(this.list[n]===a)delete this.list[n]})})},
   has(n){return voiceOn&&!muted&&!!this.list[n]},
   /* phát rồi gọi done() khi đọc xong (hoặc lỗi/bị bỏ qua) */
   play(n,done){this.stop();const a=this.list[n];const tk=++this.token;let fin=false;
@@ -694,12 +694,16 @@ $('setBtn').onclick=openSettings;$('setClose').onclick=()=>{stopSounds();closeDl
 /* Nhạc gốc đặt trong thư mục nhac/ cạnh index.html, game tự nạp (cả trên GitHub). File nạp bằng tay trong Cài đặt luôn được ưu tiên.
    Mục không có file (trả lời sai, câu hỏi từ khóa, công bố từ khóa) dùng âm thanh tạo sẵn. */
 const LOCAL_DIR='nhac/';
+const GH_BASE='https://vsmvn.github.io/mini-game/olympia-vuot-chuong-ngai-vat/';
+/* gắn nguồn cho thẻ audio: thử đường dẫn cạnh trang trước, lỗi thì lấy từ GitHub; hết cách mới gọi fail() */
+function srcWithFallback(a,path,fail){const urls=[path];if(!/github\.io$/.test(location.hostname))urls.push(GH_BASE+path);let i=0;
+  const next=()=>{if(i>=urls.length){fail&&fail();return}a.src=urls[i++];try{a.load()}catch(e){}};
+  a.addEventListener('error',function h(){if(i<urls.length)next();else{a.removeEventListener('error',h);fail&&fail()}});next()}
 const LOCAL={opening:'nhac-mo-dau.mp3',question:'mo-cau-hoi.mp3',think:'cho-thi-sinh-tra-loi.mp3',tick:'tieng-dem-giay.wav',timeup:'het-gio.wav',correct:'tra-loi-dung.wav',piece:'mo-manh-ghep.wav'};
 function loadLocal(){
   Object.keys(LOCAL).forEach(k=>{try{const a=new Audio();a.preload='auto';
     if(custom[k])return;const c={name:LOCAL[k]+' (nhạc gốc)',url:null,audio:a,local:true};custom[k]=c;
-    a.addEventListener('error',()=>{if(custom[k]===c){delete custom[k];if(typeof renderSlots==='function'&&isOpen($('setBox')))renderSlots()}},{once:true});
-    a.src=LOCAL_DIR+LOCAL[k];try{a.load()}catch(e){}}catch(e){}});if(typeof updateSettingsUI==='function')try{updateSettingsUI()}catch(e){}}
+    srcWithFallback(a,LOCAL_DIR+LOCAL[k],()=>{if(custom[k]===c){delete custom[k];if(typeof renderSlots==='function'&&isOpen($('setBox')))renderSlots()}})}catch(e){}});if(typeof updateSettingsUI==='function')try{updateSettingsUI()}catch(e){}}
 {let localDone=false;const goLocal=()=>{if(!localDone){localDone=true;loadLocal()}};setTimeout(goLocal,1500);
   dbAll().then(all=>{Object.keys(all||{}).forEach(k=>{const v=all[k];if(v&&v.blob)setCustom(k,v.name,v.blob)})}).then(goLocal,goLocal)}
 /* mở khóa phát nhạc ngay trong lúc người dùng bấm (cần cho iPhone/Safari) */
