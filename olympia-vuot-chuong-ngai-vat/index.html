@@ -590,7 +590,7 @@ const THINK={iv:0,bus:null,next:0,step:0,
     if(bar===3&&k>=6)noise(t,.06,{f:2400,q:.8,vol:.05+.03*(k-6),dest:d})}};
 function resetRing(sec){stopTimer();timer.end=Infinity;const r=$('ring');r.className='ring';r.style.setProperty('--p',1);$('sec').textContent=sec}
 function startTimer(sec){stopTimer();timer.total=sec;timer.end=performance.now()+sec*1000;timer.last=sec;timer.running=true;$('sec').textContent=sec;
-  pushState();timer.think=false;if(!muted){if(custom.think){timer.think=true;const p=sfx('think');if(p&&p.catch)p.catch(()=>{timer.think=THINK.start()})}else timer.think=THINK.start()}
+  pushState();stopOne('question');timer.think=false;if(!muted){if(custom.think){timer.think=true;const p=sfx('think');if(p&&p.catch)p.catch(()=>{timer.think=THINK.start()})}else timer.think=THINK.start()}
   const loop=now=>{if(!timer.running)return;const left=Math.max(0,(timer.end-now)/1000);const s=Math.ceil(left);
     $('ring').style.setProperty('--p',left/timer.total);
     if(s!==timer.last){timer.last=s;$('sec').textContent=s;const u=s<=3;$('ring').classList.toggle('urgent',u&&s>0);if(s>0&&(!timer.think||u))sfx('tick',u)}
@@ -663,14 +663,13 @@ $('fileMany').onchange=async e=>{const files=[...e.target.files];const ok=[],ski
   renderSlots();updateSettingsUI();
   toast(ok.length?'Đã nạp '+ok.length+' file'+(skip.length?' · bỏ qua '+skip.length+' file không nhận ra tên':''):'Không nhận ra file nào — hãy nạp từng mục bằng nút "Chọn file"')};
 $('setBtn').onclick=openSettings;$('setClose').onclick=()=>{stopSounds();closeDlg($('setBox'))};
-/* Khi chạy trên máy (localhost / file) game tự lấy nhạc trong thư mục ../audio/ nếu có.
-   Trên GitHub Pages không tìm (nhạc gốc không được đăng công khai). File nạp bằng nút 🎵 luôn được ưu tiên. */
-const LOCAL_DIR='../audio/';
-const LOCAL={opening:'nhac-mo-dau.mp3',question:'mo-cau-hoi.mp3',think:'cho-thi-sinh-tra-loi.mp3',tick:'tieng-dem-giay.mp3',timeup:'het-gio.mp3',
-  correct:'tra-loi-dung.mp3',wrong:'tra-loi-sai.mp3',piece:'mo-manh-ghep.mp3',keyword:'cau-hoi-tu-khoa.mp3',fanfare:'cong-bo-tu-khoa.mp3'};
-function loadLocal(){if(/github.io$/.test(location.hostname))return;
+/* Nhạc gốc đặt trong thư mục nhac/ cạnh index.html, game tự nạp (cả trên GitHub). File nạp bằng tay trong Cài đặt luôn được ưu tiên.
+   Mục không có file (trả lời sai, câu hỏi từ khóa, công bố từ khóa) dùng âm thanh tạo sẵn. */
+const LOCAL_DIR='nhac/';
+const LOCAL={opening:'nhac-mo-dau.mp3',question:'mo-cau-hoi.mp3',think:'cho-thi-sinh-tra-loi.mp3',tick:'tieng-dem-giay.wav',timeup:'het-gio.wav',correct:'tra-loi-dung.wav',piece:'mo-manh-ghep.wav'};
+function loadLocal(){
   Object.keys(LOCAL).forEach(k=>{try{const a=new Audio();a.preload='auto';
-    a.addEventListener('canplaythrough',()=>{if(!custom[k])custom[k]={name:LOCAL[k]+' (thư mục audio)',url:null,audio:a,local:true}},{once:true});
+    a.addEventListener('canplaythrough',()=>{if(!custom[k])custom[k]={name:LOCAL[k]+' (nhạc gốc)',url:null,audio:a,local:true}},{once:true});
     a.addEventListener('error',()=>{},{once:true});a.src=LOCAL_DIR+LOCAL[k]}catch(e){}})}
 dbAll().then(all=>{Object.keys(all).forEach(k=>{const v=all[k];if(v&&v.blob)setCustom(k,v.name,v.blob)})}).then(loadLocal,loadLocal);
 /* mở khóa phát nhạc ngay trong lúc người dùng bấm (cần cho iPhone/Safari) */
