@@ -180,6 +180,29 @@ details.music>summary::after{content:' ▾';color:var(--muted)}details.music[ope
 details.music>summary small{color:var(--green);text-transform:none;letter-spacing:0;font-weight:600}
 details.music .note{margin-top:10px}
 
+/* ---------- điện thoại ---------- */
+.phoneInfo{align-self:flex-start;font-size:15px}
+.ansList{list-style:none;margin:0;padding:0;display:grid;gap:6px;width:100%;min-width:250px}
+.ansList li{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:10px;background:#ffffff0d;border:1px solid #ffffff1f;font-size:15px}
+.ansList .an{font-weight:800;white-space:nowrap}
+.ansList .at{flex:1;text-align:right;color:var(--muted);font-weight:700;overflow-wrap:anywhere}
+.ansList .at.ok{color:var(--green)}.ansList .at.near{color:var(--gold2)}.ansList .at.no{color:#ff9b9b}
+.ansList .mk{flex:none;width:34px;height:34px;border-radius:8px;border:1px solid #ffffff30;background:#7a2335;color:#fff;font-weight:900;display:grid;place-items:center;padding:0}
+.ansList .mk.yes{background:#1f8f55}
+.ansList .empty{justify-content:center;color:var(--muted)}
+.qSide.wide{min-width:280px}
+.qrWrap{display:grid;grid-template-columns:minmax(200px,300px) 1fr;gap:22px;align-items:center;margin-top:14px}
+.qrImg{background:#fff;border-radius:14px;padding:10px;aspect-ratio:1;display:grid;place-items:center;color:#123;font-weight:700}
+.qrImg svg{width:100%;height:auto;display:block}
+.pop .qrInfo h2{font-size:clamp(22px,2.4vw,30px);margin:0 0 8px}
+.room{font-size:22px;letter-spacing:.15em;color:var(--gold2)}
+.small{font-size:12px!important;overflow-wrap:anywhere;margin-top:4px}
+.connList{list-style:none;padding:0;margin:12px 0;display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.connList li{display:flex;justify-content:space-between;gap:6px;padding:7px 10px;border-radius:9px;background:#ffffff0b;border:1px solid #ffffff1c;font-size:14px;font-weight:700}
+.connList li b{color:var(--muted);font-weight:600}.connList li.on b{color:var(--green)}
+@media (max-width:640px){.qrWrap{grid-template-columns:1fr}.qrImg{max-width:260px;width:100%;margin:auto}.connList{grid-template-columns:1fr}}
+@media (max-width:760px){.ansList{min-width:0}.qSide.wide{flex-direction:column;align-items:stretch}}
+
 /* ---------- dialogs ---------- */
 dialog{border:0;padding:0;background:none;color:var(--ink);max-width:none;max-height:none}
 dialog::backdrop{background:#020b18c9}
@@ -278,6 +301,7 @@ dialog[open] .pop{animation:pop .3s cubic-bezier(.2,1.4,.4,1)}
       <section class="panel control">
         <p class="status" id="status"></p>
         <div class="teams" id="boardTeams"></div>
+        <button class="linkBtn phoneInfo" id="phoneInfo" type="button" hidden></button>
         <div class="ctlBtns">
           <button class="btn dark" id="randBtn">🔀 Chọn ngẫu nhiên</button>
           <button class="btn gold" id="keyBtn">🔑 Đoán từ khóa</button>
@@ -302,11 +326,14 @@ dialog[open] .pop{animation:pop .3s cubic-bezier(.2,1.4,.4,1)}
       <div class="ring" id="ring"><span id="sec">10</span></div>
       <div class="whoLbl" id="whoLbl">Tổ trả lời</div>
       <div class="teams" id="qTeams"></div>
+      <ul class="ansList" id="ansList" hidden></ul>
     </div>
   </div>
   <div class="qBtns" id="qBtns">
     <button class="btn green" id="okBtn">✓ Đúng <kbd>Enter</kbd></button>
     <button class="btn red" id="noBtn">✗ Sai <kbd>S</kbd></button>
+    <button class="btn gold" id="showAnsBtn" hidden>👁 Xem đáp án các tổ <kbd>Enter</kbd></button>
+    <button class="btn green" id="applyBtn" hidden>✓ Chấm điểm <kbd>Enter</kbd></button>
     <button class="btn dark" id="revealBtn" hidden>📣 Công bố từ khóa</button>
     <button class="btn dark" id="retimeBtn">↻ Tính giờ lại</button>
     <button class="btn dark" id="backBtn">← Về bảng <kbd>Esc</kbd></button>
@@ -320,12 +347,31 @@ dialog[open] .pop{animation:pop .3s cubic-bezier(.2,1.4,.4,1)}
   <div class="popBtns" id="popBtns"></div>
 </div></dialog>
 
+<dialog id="qrBox"><div class="pop wide">
+  <div class="tag">📱 Trả lời bằng điện thoại</div>
+  <div class="qrWrap">
+    <div class="qrImg" id="qrImg"></div>
+    <div class="qrInfo">
+      <h2>Quét mã để tham gia</h2>
+      <p class="note">Mỗi tổ dùng 1 điện thoại: quét mã rồi chọn tên tổ.</p>
+      <p class="note">Mã phòng: <b class="room" id="qrCode">…</b></p>
+      <p class="note small" id="qrUrl"></p>
+      <ul class="connList" id="connList"></ul>
+      <p class="note" id="peerStatus"></p>
+    </div>
+  </div>
+  <div class="popBtns"><button class="btn gold" id="qrClose" type="button">Xong</button><button class="btn dark" id="phoneOffBtn" type="button">Tắt chế độ điện thoại</button></div>
+</div></dialog>
+
 <dialog id="setBox"><div class="pop wide">
   <div class="tag">⚙️ Cài đặt</div>
   <div class="setGroup"><label>Số tổ tham gia</label><div class="seg" id="segTeams"></div><p class="note" id="teamsNote" hidden>Số tổ mới được áp dụng khi chơi lại.</p></div>
   <div class="setGroup"><label>Thời gian mỗi câu</label><div class="seg" id="segTime"></div></div>
   <div class="setGroup"><label>Âm thanh &amp; màn hình</label>
     <div class="setRow"><button class="btn dark" id="soundBtn" type="button">🔊 Âm thanh: Bật</button><button class="btn dark" id="fsBtn" type="button">⛶ Toàn màn hình</button></div></div>
+  <div class="setGroup"><label>Trả lời bằng điện thoại</label>
+    <div class="setRow"><button class="btn dark" id="phoneBtn" type="button">📱 Bật &amp; hiện mã QR</button></div>
+    <p class="note" style="margin-top:8px">Mỗi tổ quét mã QR bằng điện thoại để gửi đáp án. Máy chiếu và điện thoại đều cần có Internet.</p></div>
   <details class="setGroup music" id="musicSec">
     <summary>🎵 Nạp nhạc <small id="musicCount"></small></summary>
     <p class="note">Chọn file mp3/wav có sẵn trên máy. Nhạc chỉ được lưu <b>trong trình duyệt của máy này</b>, không tải lên mạng. Mục nào để trống sẽ dùng âm thanh tạo sẵn của game.</p>
@@ -433,7 +479,7 @@ fresh();
 let timer={raf:0,end:0,last:-1,running:false,think:false};
 let tiles=[];
 
-function show(id){if(document.activeElement&&document.activeElement.blur)document.activeElement.blur();['scrIntro','scrBoard','scrQ'].forEach(s=>$(s).hidden=s!==id);S.screen=id;window.scrollTo(0,0)}
+function show(id){if(document.activeElement&&document.activeElement.blur)document.activeElement.blur();['scrIntro','scrBoard','scrQ'].forEach(s=>$(s).hidden=s!==id);S.screen=id;window.scrollTo(0,0);pushState()}
 
 /* ---------- màn giới thiệu ---------- */
 function buildSeg(box,vals,cur,fmt,on){box.replaceChildren(...vals.map(v=>{const b=el('button',null,fmt(v));b.type='button';b.setAttribute('aria-pressed',v===cur);b.onclick=()=>{on(v);[...box.children].forEach(x=>x.setAttribute('aria-pressed',x===b))};return b}))}
@@ -468,7 +514,7 @@ function renderBoard(){
   else if(!left){st.append('Đã hết hàng ngang. Mời các tổ ',el('em',null,'đoán từ khóa'),'!')}
   else st.append('Lượt của ',el('em',null,S.teams[S.turn].name),' · chọn một hàng ngang (còn '+left+' hàng).');
   $('randBtn').disabled=!left||S.done||S.busy;$('keyBtn').disabled=S.done||S.busy;
-  $('keyBtn').classList.toggle('pulse',!S.done&&(S.correct>=4||!left));
+  $('keyBtn').classList.toggle('pulse',!S.done&&(S.correct>=4||!left));refreshPhoneUI();
 }
 function pickRow(j){if(S.busy||S.done||S.rows[j]!=='idle')return;audio();prime();openQuestion(j)}
 function spin(){if(S.busy||S.done)return;const idle=S.rows.map((s,j)=>s==='idle'?j:-1).filter(j=>j>=0);if(!idle.length)return;
@@ -484,52 +530,56 @@ function renderBoxes(word,known){const box=$('qBoxes');box.replaceChildren();let
     const b=el('span','qb'+(k===keyIdx?' key':''));b.style.setProperty('--i',k);if(known&&known(k)){b.textContent=ch;b.classList.add('on')}box.append(b);k++}}
 function revealBoxes(){const ls=S.mode==='row'?letters(QA[S.cur][1]):letters(KEYWORD);[...$('qBoxes').querySelectorAll('.qb')].forEach((b,k)=>{b.textContent=ls[k];b.classList.add('on','flip')})}
 function renderQTeams(){teamChips($('qTeams'),{sel:S.answerer,hideOut:S.mode==='key',pick:i=>{if(!S.judged){S.answerer=i;renderQTeams()}}})}
-function setJudgeBtns(){const j=S.judged;$('okBtn').disabled=j;$('noBtn').disabled=j;$('retimeBtn').disabled=j;$('revealBtn').disabled=j;
+function setJudgeBtns(){const j=S.judged,ph=PH.on;$('okBtn').disabled=j;$('noBtn').disabled=j;$('retimeBtn').disabled=j||PH.shown;$('revealBtn').disabled=j;
+  $('okBtn').hidden=ph;$('noBtn').hidden=ph;$('showAnsBtn').hidden=!ph||PH.shown||j;$('applyBtn').hidden=!ph||!PH.shown||j;
   $('revealBtn').hidden=S.mode!=='key';$('hintBtn').hidden=S.mode!=='key'||S.center;}
-function openQuestion(j){stopSounds();S.mode='row';S.cur=j;S.answerer=S.turn;S.judged=false;
+function openQuestion(j){stopSounds();S.mode='row';S.cur=j;S.answerer=S.turn;S.judged=false;PH.ans={};PH.shown=false;PH.marks={};PH.winners=[];
   $('qTag').textContent='Hàng ngang '+pad(j+1);$('qLen').textContent=letters(QA[j][1]).length+' chữ cái';
   renderBoxes(QA[j][1]);$('qText').textContent=QA[j][0];$('qHint').hidden=true;$('result').textContent='';$('result').className='result';$('whoLbl').textContent='Tổ trả lời';
-  renderQTeams();setJudgeBtns();show('scrQ');resetRing(cfg.time);
+  renderQTeams();setJudgeBtns();resetRing(cfg.time);show('scrQ');renderAns();
   sfx('question');const d=custom.question?Math.min(4,custom.question.audio.duration||2):1.5;
   setTimeout(()=>{if(S.screen==='scrQ'&&S.mode==='row'&&S.cur===j&&!S.judged){stopOne('question');startTimer(cfg.time)}},d*1000)}
-function openKeyword(){if(S.done)return;stopSounds();audio();prime();S.mode='key';S.cur=-1;S.judged=false;
+function openKeyword(){if(S.done)return;stopSounds();audio();prime();S.mode='key';S.cur=-1;S.judged=false;PH.kw=[];PH.shown=false;PH.marks={};PH.winners=[];
   const avail=S.teams.findIndex((t,i)=>!t.out&&i>=S.turn);S.answerer=avail>=0?avail:Math.max(0,S.teams.findIndex(t=>!t.out));
   $('qTag').textContent='Câu hỏi từ khóa';$('qLen').textContent='11 chữ cái';
   renderBoxes(KEYWORD,k=>S.rows[k]==='right');$('qText').textContent=KEY_Q;$('qHint').textContent=KEY_HINT;$('qHint').hidden=!S.center;
   $('result').textContent='';$('result').className='result';$('whoLbl').textContent='Tổ đoán từ khóa';
-  renderQTeams();setJudgeBtns();show('scrQ');resetRing(Math.max(15,cfg.time));
+  renderQTeams();setJudgeBtns();resetRing(Math.max(15,cfg.time));show('scrQ');renderAns();
   sfx('keyword');setTimeout(()=>{if(S.screen==='scrQ'&&S.mode==='key'&&!S.judged){stopOne('keyword');startTimer(Math.max(15,cfg.time))}},custom.keyword?Math.min(4,custom.keyword.audio.duration||2)*1000:2200)}
 
 /* ---------- đồng hồ ---------- */
-function resetRing(sec){stopTimer();const r=$('ring');r.className='ring';r.style.setProperty('--p',1);$('sec').textContent=sec}
+function resetRing(sec){stopTimer();timer.end=Infinity;const r=$('ring');r.className='ring';r.style.setProperty('--p',1);$('sec').textContent=sec}
 function startTimer(sec){stopTimer();timer.total=sec;timer.end=performance.now()+sec*1000;timer.last=sec;timer.running=true;$('sec').textContent=sec;
-  timer.think=false;if(custom.think&&!muted){timer.think=true;const p=sfx('think');if(p&&p.catch)p.catch(()=>{timer.think=false})}
+  pushState();timer.think=false;if(custom.think&&!muted){timer.think=true;const p=sfx('think');if(p&&p.catch)p.catch(()=>{timer.think=false})}
   const loop=now=>{if(!timer.running)return;const left=Math.max(0,(timer.end-now)/1000);const s=Math.ceil(left);
     $('ring').style.setProperty('--p',left/timer.total);
     if(s!==timer.last){timer.last=s;$('sec').textContent=s;const u=s<=3;$('ring').classList.toggle('urgent',u&&s>0);if(s>0&&(!timer.think||u))sfx('tick',u)}
-    if(left<=0){timer.running=false;stopOne('think');sfx('timeup');const r=$('ring');r.classList.remove('urgent');r.classList.add('over');$('sec').textContent='Hết giờ';return}
+    if(left<=0){timer.running=false;stopOne('think');sfx('timeup');const r=$('ring');r.classList.remove('urgent');r.classList.add('over');$('sec').textContent='Hết giờ';pushState();return}
     timer.raf=requestAnimationFrame(loop)};timer.raf=requestAnimationFrame(loop)}
 function stopTimer(){timer.running=false;cancelAnimationFrame(timer.raf);stopOne('think')}
 
 /* ---------- chấm điểm ---------- */
-function addScore(i,p){S.teams[i].score+=p;renderQTeams();const c=$('qTeams').children[i];if(c){c.classList.add('bump')}}
+function addScore(i,p){S.teams[i].score+=p;renderQTeams();pushState();const c=$('qTeams').children[i];if(c){c.classList.add('bump')}}
 function nextTurn(){S.turn=(S.turn+1)%S.teams.length}
-function judge(ok){if(S.judged||S.screen!=='scrQ')return;S.judged=true;stopTimer();stopSounds();setJudgeBtns();const t=S.teams[S.answerer];
-  if(S.mode==='row'){const j=S.cur;
-    if(ok){sfx('correct');revealBoxes();addScore(S.answerer,PTS_ROW);$('result').textContent='Chính xác! '+t.name+' +'+PTS_ROW+' điểm';$('result').className='result ok';
-      S.rows[j]='right';S.correct++;nextTurn();
-      setTimeout(()=>{show('scrBoard');renderBoard();fillRow(j);setTimeout(()=>{sfx('piece')},700);
-        if(S.correct===4)setTimeout(()=>popMsg({tag:'Ảnh gợi ý',title:'Đã mở đủ 4 mảnh ghép!',body:'Các tổ có thể đoán từ khóa ngay, hoặc tiếp tục chọn hàng ngang.',btns:[['🔑 Đoán từ khóa','gold',openKeyword],['Tiếp tục chọn hàng','dark']]}),1700)
-        else if(!S.rows.includes('idle'))setTimeout(()=>popMsg({tag:'Hết hàng ngang',title:'Mời đoán từ khóa',btns:[['🔑 Đoán từ khóa','gold',openKeyword]]}),1700)},1900)}
-    else{sfx('wrong');$('qBoxes').classList.remove('shake');void $('qBoxes').offsetWidth;$('qBoxes').classList.add('shake');$('result').textContent='Chưa chính xác · hàng ngang bị khóa';$('result').className='result no';
-      S.rows[j]='wrong';nextTurn();
-      setTimeout(()=>{show('scrBoard');renderBoard();if(!S.rows.includes('idle'))setTimeout(()=>popMsg({tag:'Hết hàng ngang',title:'Mời đoán từ khóa',btns:[['🔑 Đoán từ khóa','gold',openKeyword]]}),600)},1600)}}
-  else{ if(ok){addScore(S.answerer,PTS_KEY);finalReveal(S.answerer)}
-    else{sfx('wrong');t.out=true;renderQTeams();$('result').textContent=t.name+' đoán sai · bị loại khỏi phần đoán từ khóa';$('result').className='result no';
-      $('qBoxes').classList.remove('shake');void $('qBoxes').offsetWidth;$('qBoxes').classList.add('shake');
-      setTimeout(()=>{if(S.teams.every(x=>x.out)){finalReveal(null)}else{show('scrBoard');renderBoard()}},1800)}}
-}
-function finalReveal(winner){S.judged=true;stopTimer();stopSounds();S.done=true;S.center=true;
+function names(arr){return arr.map(i=>S.teams[i].name).join(', ')}
+function shakeBoxes(){const b=$('qBoxes');b.classList.remove('shake');void b.offsetWidth;b.classList.add('shake')}
+const askKey=()=>popMsg({tag:'Hết hàng ngang',title:'Mời đoán từ khóa',btns:[['🔑 Đoán từ khóa','gold',openKeyword]]});
+function judge(ok){if(S.judged||S.screen!=='scrQ')return;if(S.mode==='row')rowDone(ok?[S.answerer]:[]);else keyDone(ok?S.answerer:null,ok?[]:[S.answerer])}
+function rowDone(winners){if(S.judged)return;S.judged=true;PH.winners=winners;stopTimer();stopSounds();setJudgeBtns();renderAns();const j=S.cur;const wait=PH.on?3200:1900;
+  if(winners.length){sfx('correct');revealBoxes();winners.forEach(i=>addScore(i,PTS_ROW));$('result').textContent='Chính xác! '+names(winners)+' +'+PTS_ROW+' điểm';$('result').className='result ok';
+    S.rows[j]='right';S.correct++;nextTurn();pushState();
+    setTimeout(()=>{show('scrBoard');renderBoard();fillRow(j);setTimeout(()=>{sfx('piece')},700);
+      if(S.correct===4)setTimeout(()=>popMsg({tag:'Ảnh gợi ý',title:'Đã mở đủ 4 mảnh ghép!',body:'Các tổ có thể đoán từ khóa ngay, hoặc tiếp tục chọn hàng ngang.',btns:[['🔑 Đoán từ khóa','gold',openKeyword],['Tiếp tục chọn hàng','dark']]}),1700)
+      else if(!S.rows.includes('idle'))setTimeout(askKey,1700)},wait)}
+  else{sfx('wrong');shakeBoxes();$('result').textContent=(PH.on?'Không tổ nào trả lời đúng':'Chưa chính xác')+' · hàng ngang bị khóa';$('result').className='result no';
+    S.rows[j]='wrong';nextTurn();pushState();
+    setTimeout(()=>{show('scrBoard');renderBoard();if(!S.rows.includes('idle'))setTimeout(askKey,600)},wait-300)}}
+function keyDone(winner,outs){if(S.judged)return;outs.forEach(i=>{if(i!=null&&S.teams[i])S.teams[i].out=true});
+  if(winner!=null){PH.winners=[winner];addScore(winner,PTS_KEY);finalReveal(winner);return}
+  S.judged=true;stopTimer();stopSounds();setJudgeBtns();renderAns();sfx('wrong');renderQTeams();shakeBoxes();
+  $('result').textContent=outs.length?names(outs)+' đoán sai · bị loại khỏi phần đoán từ khóa':'Chưa có tổ nào đoán đúng từ khóa';$('result').className='result no';pushState();
+  setTimeout(()=>{if(S.teams.every(x=>x.out))finalReveal(null);else{show('scrBoard');renderBoard()}},1800)}
+function finalReveal(winner){S.judged=true;stopTimer();stopSounds();S.done=true;S.center=true;setJudgeBtns();renderAns();pushState();
   if(S.screen==='scrQ'&&S.mode==='key'){revealBoxes();$('result').textContent=winner!=null?'Chính xác! '+S.teams[winner].name+' +'+PTS_KEY+' điểm':'Đáp án: '+KEYWORD;$('result').className='result ok'}
   sfx('fanfare');
   setTimeout(()=>{show('scrBoard');renderBoard();QA.forEach((_,j)=>setTimeout(()=>fillRow(j,true),j*110));
@@ -576,6 +626,97 @@ dbAll().then(all=>{Object.keys(all).forEach(k=>{const v=all[k];if(v&&v.blob)setC
 function prime(){['think','question','keyword','timeup','correct','wrong','piece','fanfare'].forEach(k=>{const c=custom[k];if(!c||c.primed||!c.audio.paused)return;
   const a=c.audio;a.muted=true;try{const p=a.play();if(p&&p.then)p.then(()=>{if(a.muted){a.pause();a.currentTime=0;a.muted=false}c.primed=true}).catch(()=>{a.muted=false});else{a.pause();a.muted=false}}catch(e){a.muted=false}})}
 
+/* ================= TRẢ LỜI BẰNG ĐIỆN THOẠI (PeerJS · WebRTC) =================
+   Máy chiếu là "chủ phòng"; điện thoại mở trang tra-loi.html?h=<mã phòng> và kết nối trực tiếp.
+   Không cần máy chủ riêng, chỉ dùng máy chủ trung gian miễn phí của PeerJS để bắt tay kết nối. */
+const PEER_SRC='https://cdnjs.cloudflare.com/ajax/libs/peerjs/1.5.4/peerjs.min.js';
+const QR_SRC='https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js';
+const PLAYER_URL=/github\.io$/.test(location.hostname)?new URL('tra-loi.html',location.href.split('?')[0]).href:'https://vsmvn.github.io/mini-game/olympia-vuot-chuong-ngai-vat/tra-loi.html';
+const PH={on:false,peer:null,id:null,conns:new Set(),ans:{},kw:[],shown:false,marks:{},winners:[]};
+function loadScript(src){return new Promise((res,rej)=>{if(document.querySelector('script[src="'+src+'"]'))return res();const sc=document.createElement('script');sc.src=src;sc.onload=res;sc.onerror=rej;document.head.append(sc)})}
+function newId(){return 'vcnv-'+Math.random().toString(36).slice(2,8)}
+function roomCode(){return PH.id?PH.id.slice(5).toUpperCase():''}
+function joinUrl(){return PLAYER_URL+'?h='+encodeURIComponent(PH.id)}
+async function phoneOn(showDlg){closeDlg($('setBox'));
+  if(!PH.on){try{await Promise.all([loadScript(PEER_SRC),loadScript(QR_SRC)])}catch(e){toast('Không tải được thư viện kết nối. Kiểm tra Internet.');return}
+    PH.on=true;store('vcnv.phone','1');startPeer(store('vcnv.hostId')||newId())}
+  if(showDlg!==false)showQR();refreshPhoneUI()}
+function phoneOff(){PH.on=false;store('vcnv.phone','0');PH.conns.forEach(c=>{try{c.close()}catch(e){}});PH.conns.clear();
+  if(PH.peer){try{PH.peer.destroy()}catch(e){}}PH.peer=null;closeDlg($('qrBox'));refreshPhoneUI()}
+function setPeerStatus(t){$('peerStatus').textContent=t}
+function startPeer(id){PH.id=id;store('vcnv.hostId',id);setPeerStatus('Đang kết nối…');renderQR();
+  const p=new Peer(id,{debug:0});PH.peer=p;
+  p.on('open',()=>{setPeerStatus('✓ Sẵn sàng nhận kết nối');renderQR()});
+  p.on('connection',c=>{c.on('open',()=>{PH.conns.add(c);send(c,{t:'hello',teams:S.teams.map(t=>t.name)});pushState()});
+    c.on('data',d=>onPhone(c,d));c.on('close',()=>{PH.conns.delete(c);refreshPhoneUI()});c.on('error',()=>{})});
+  p.on('error',e=>{if(PH.peer!==p)return;if(e.type==='unavailable-id'){try{p.destroy()}catch(x){}startPeer(newId())}
+    else if(e.type!=='peer-unavailable')setPeerStatus('Lỗi kết nối ('+e.type+'). Kiểm tra Internet.')});
+  p.on('disconnected',()=>{if(!PH.on||PH.peer!==p)return;setPeerStatus('Mất kết nối, đang thử lại…');setTimeout(()=>{try{if(PH.peer===p&&!p.destroyed)p.reconnect()}catch(e){}},2000)})}
+function send(c,m){try{if(c.open)c.send(m)}catch(e){}}
+function teamConnected(i){for(const c of PH.conns)if(c.team===i)return true;return false}
+function connectedCount(){return S.teams.filter((_,i)=>teamConnected(i)).length}
+function renderQR(){if(!PH.id)return;$('qrCode').textContent=roomCode();$('qrUrl').textContent=joinUrl();
+  if(typeof qrcode==='undefined')return;const q=qrcode(0,'M');q.addData(joinUrl());q.make();$('qrImg').innerHTML=q.createSvgTag({cellSize:8,margin:2,scalable:true})}
+function renderConnList(){$('connList').replaceChildren(...S.teams.map((t,i)=>{const on=teamConnected(i);const li=el('li',on?'on':'');li.append(el('span',null,t.name),el('b',null,on?'✓ đã kết nối':'chưa kết nối'));return li}))}
+function showQR(){renderQR();renderConnList();openDlg($('qrBox'))}
+function refreshPhoneUI(){const b=$('phoneInfo');b.hidden=!PH.on;if(PH.on)b.textContent='📱 '+connectedCount()+'/'+S.teams.length+' tổ đã kết nối · Hiện mã QR';
+  $('phoneBtn').textContent=PH.on?'📱 Hiện mã QR':'📱 Bật & hiện mã QR';
+  if(isOpen($('qrBox')))renderConnList();if(S.screen==='scrQ'){setJudgeBtns();renderAns()}}
+/* so sánh đáp án: bỏ dấu cách/ký tự lạ; "near" = đúng nhưng sai/thiếu dấu */
+function norm(x){return String(x||'').normalize('NFC').toUpperCase().replace(/[^0-9A-Z\u00C0-\u1EF9]/g,'')}
+function plain(x){return norm(x).normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/Đ/g,'D')}
+function check(a,b){if(!a)return'no';if(norm(a)===norm(b))return'ok';if(plain(a)===plain(b))return'near';return'no'}
+function timeOpen(){return timer.running||performance.now()<timer.end+800}
+function onPhone(c,d){if(!d||typeof d!=='object')return;
+  if(d.t==='join'){const i=+d.team;if(!(i>=0&&i<S.teams.length))return;c.team=i;send(c,{t:'joined',team:i});toast('📱 '+S.teams[i].name+' đã kết nối');refreshPhoneUI();pushState();return}
+  const i=c.team;if(i==null||!S.teams[i])return;
+  const text=String(d.text||'').replace(/\s+/g,' ').trim().slice(0,40);
+  if(d.t==='answer'){
+    if(S.screen!=='scrQ'||S.mode!=='row'||S.judged||PH.shown||!timeOpen())return send(c,{t:'reject',msg:'Đã hết thời gian trả lời'});
+    if(!text)return;PH.ans[i]={text,at:Date.now()};send(c,{t:'sent',text});renderAns();pushState()}
+  else if(d.t==='kw'){
+    if(S.screen!=='scrQ'||S.mode!=='key'||S.judged||PH.shown||S.teams[i].out||!timeOpen())return send(c,{t:'reject',msg:'Chưa thể gửi từ khóa lúc này'});
+    if(!text||PH.kw.some(x=>x.team===i))return;PH.kw.push({team:i,text,at:Date.now()});send(c,{t:'sent',text});sfx('land');renderAns();pushState()}
+  else if(d.t==='buzz'){if(S.done||S.teams[i].out)return;toast('🔔 '+S.teams[i].name+' xin đoán từ khóa!');sfx('land')}}
+function renderAns(){const ul=$('ansList');const on=PH.on&&S.screen==='scrQ';ul.hidden=!on;$('qTeams').hidden=on;document.querySelector('.qSide').classList.toggle('wide',on);if(!on)return;
+  $('whoLbl').textContent=S.mode==='key'?'Từ khóa các tổ gửi (theo thứ tự)':'Đáp án các tổ';
+  const target=S.mode==='key'?KEYWORD:QA[S.cur][1];ul.replaceChildren();
+  const rows=S.mode==='key'?PH.kw.map((x,k)=>({i:x.team,text:x.text,key:'k'+(k+1),ord:k+1})):S.teams.map((t,i)=>({i,text:PH.ans[i]&&PH.ans[i].text,key:i}));
+  if(!rows.length)ul.append(el('li','empty','Chưa có tổ nào gửi'));
+  rows.forEach(r=>{const li=el('li');li.append(el('span','an',(r.ord?r.ord+'. ':'')+S.teams[r.i].name));
+    let txt;if(!PH.shown)txt=el('span','at',r.text?'✓ đã gửi':(teamConnected(r.i)?'đang chờ…':'chưa kết nối'));
+    else{txt=el('span','at '+check(r.text,target),r.text||'(không gửi)')}
+    li.append(txt);
+    if(PH.shown){const yes=!!PH.marks[r.key];const m=el(S.judged?'span':'button','mk'+(yes?' yes':''),yes?'✓':'✗');
+      if(!S.judged){m.type='button';m.title='Bấm để đổi Đúng/Sai';m.onclick=()=>{PH.marks[r.key]=!PH.marks[r.key];renderAns()}}li.append(m)}
+    ul.append(li)})}
+function showAns(){if(S.judged||PH.shown)return;PH.shown=true;stopTimer();
+  const target=S.mode==='key'?KEYWORD:QA[S.cur][1];PH.marks={};
+  if(S.mode==='key')PH.kw.forEach((x,k)=>{PH.marks['k'+(k+1)]=check(x.text,target)==='ok'});
+  else S.teams.forEach((_,i)=>{PH.marks[i]=!!PH.ans[i]&&check(PH.ans[i].text,target)==='ok'});
+  sfx('land');setJudgeBtns();renderAns();pushState()}
+function applyJudge(){if(S.judged)return;if(!PH.shown){showAns();return}
+  if(S.mode==='row')rowDone(S.teams.map((_,i)=>i).filter(i=>PH.marks[i]));
+  else{let win=null;const outs=[];for(let k=0;k<PH.kw.length;k++){if(PH.marks['k'+(k+1)]){win=PH.kw[k].team;break}outs.push(PH.kw[k].team)}keyDone(win,outs)}}
+function remain(){return timer.running?Math.max(0,Math.round(timer.end-performance.now())):(timer.end===Infinity?null:0)}
+function phaseInfo(){if(S.screen==='scrIntro')return{phase:'lobby'};if(S.done)return{phase:'done',keyword:KEYWORD};
+  if(S.screen==='scrQ'&&S.mode==='row'){const a=QA[S.cur][1];const row={n:S.cur+1,q:QA[S.cur][0],words:a.split(' ').map(w=>[...w].length)};
+    if(S.judged)return{phase:'rowResult',row,answer:S.rows[S.cur]==='right'?a:null};
+    return{phase:'row',row,remain:remain(),total:timer.total||cfg.time,closed:PH.shown||!timeOpen()}}
+  if(S.screen==='scrQ'&&S.mode==='key'){const ls=letters(KEYWORD);
+    return{phase:'key',known:ls.map((ch,k)=>S.rows[k]==='right'?ch:''),words:KEYWORD.split(' ').map(w=>[...w].length),hint:S.center?KEY_HINT:null,remain:remain(),total:timer.total||cfg.time,closed:S.judged||PH.shown||!timeOpen()}}
+  return{phase:'board',left:S.rows.filter(x=>x==='idle').length}}
+function pushState(){if(!PH.on||!PH.conns.size)return;const info=phaseInfo();const teams=S.teams.map(t=>({name:t.name,score:t.score,out:t.out}));
+  PH.conns.forEach(c=>{const i=c.team;let you=null;
+    if(i!=null&&S.teams[i]){you={team:i,out:S.teams[i].out};
+      if(info.phase==='row'||info.phase==='rowResult')you.sent=PH.ans[i]?PH.ans[i].text:null;
+      if(info.phase==='rowResult')you.right=PH.winners.includes(i);
+      if(info.phase==='key'){const x=PH.kw.find(x=>x.team===i);you.sent=x?x.text:null}}
+    send(c,Object.assign({t:'state',teams,you},info))})}
+$('phoneBtn').onclick=()=>phoneOn(true);$('phoneInfo').onclick=showQR;$('qrClose').onclick=()=>closeDlg($('qrBox'));$('phoneOffBtn').onclick=phoneOff;
+$('showAnsBtn').onclick=showAns;$('applyBtn').onclick=applyJudge;
+if(store('vcnv.phone')==='1')setTimeout(()=>phoneOn(false),300);
+
 /* ---------- sự kiện ---------- */
 function startGame(){audio();prime();fresh();buildBoard();renderBoard();show('scrBoard');sfx('opening')}
 $('startBtn').onclick=startGame;
@@ -583,7 +724,7 @@ $('randBtn').onclick=spin;$('keyBtn').onclick=openKeyword;
 $('okBtn').onclick=()=>judge(true);$('noBtn').onclick=()=>judge(false);
 $('revealBtn').onclick=()=>{if(!S.judged)finalReveal(null)};
 $('retimeBtn').onclick=()=>{if(!S.judged)startTimer(S.mode==='key'?Math.max(15,cfg.time):cfg.time)};
-$('hintBtn').onclick=()=>{S.center=true;$('qHint').hidden=false;$('hintBtn').hidden=true;sfx('piece')};
+$('hintBtn').onclick=()=>{S.center=true;$('qHint').hidden=false;$('hintBtn').hidden=true;sfx('piece');pushState()};
 function back(){if(S.screen!=='scrQ'||(S.judged&&S.mode==='row'))return;stopTimer();stopSounds();show('scrBoard');renderBoard()}
 $('backBtn').onclick=back;
 $('resetBtn').onclick=()=>{closeDlg($('setBox'));resetAsk()};function resetAsk(){popMsg({tag:'Chơi lại',title:'Chơi lại từ đầu?',body:'Điểm số và bảng ô chữ sẽ được đặt lại.',btns:[['↻ Chơi lại','gold',()=>{stopTimer();stopSounds();fresh();show('scrIntro');updateSettingsUI()}],['Quay lại','dark']]})}
@@ -598,10 +739,10 @@ document.addEventListener('keydown',e=>{
   if(e.target&&e.target.tagName==='BUTTON'&&!e.target.disabled&&(e.key==='Enter'||e.key===' '))return;
   if(e.key==='m'||e.key==='M'){setMute(!muted);return}
   const z=document.querySelector('.zoomed');if(z){if(e.key==='Escape')z.remove();return}
-  if(isOpen($('popBox'))||isOpen($('setBox'))){if(e.key==='Escape'){e.preventDefault();closeDlg($('popBox'));closeDlg($('setBox'))}return}
+  if(isOpen($('popBox'))||isOpen($('setBox'))||isOpen($('qrBox'))){if(e.key==='Escape'){e.preventDefault();closeDlg($('popBox'));closeDlg($('setBox'));closeDlg($('qrBox'))}return}
   if(S.screen==='scrQ'){
-    if(e.key==='Enter'&&!e.repeat){e.preventDefault();judge(true)}
-    else if((e.key==='s'||e.key==='S')&&!e.repeat){e.preventDefault();judge(false)}
+    if(e.key==='Enter'&&!e.repeat){e.preventDefault();if(PH.on){PH.shown?applyJudge():showAns()}else judge(true)}
+    else if((e.key==='s'||e.key==='S')&&!e.repeat&&!PH.on){e.preventDefault();judge(false)}
     else if(e.key==='Escape'){e.preventDefault();back()}
     else if(e.key===' '){e.preventDefault();$('retimeBtn').click()}}
   else if(S.screen==='scrBoard'){

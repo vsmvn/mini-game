@@ -1,0 +1,260 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Trả lời · Olympia Vượt chướng ngại vật</title>
+<meta name="description" content="Trang trả lời bằng điện thoại cho trò chơi Olympia · Vượt chướng ngại vật.">
+<meta name="theme-color" content="#071a33">
+<meta name="robots" content="noindex">
+<meta property="og:title" content="Olympia · Vượt chướng ngại vật – Trả lời bằng điện thoại">
+<meta property="og:description" content="Quét mã QR trên màn chiếu để tham gia và gửi đáp án cho tổ của bạn.">
+<meta property="og:image" content="https://vsmvn.github.io/mini-game/olympia-vuot-chuong-ngai-vat/og.jpg">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='30' fill='%23f5c04a'/%3E%3Ctext x='32' y='44' font-size='34' font-weight='900' text-anchor='middle' fill='%230a2244' font-family='Arial'%3EO%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#071a33;--line:#2c5a8c;--cell:#123a66;--gold:#f5c04a;--gold2:#ffd97a;--ink:#eef4ff;--muted:#9fb6d6;--red:#ff6b6b;--green:#3fcf83;
+  --font:'Be Vietnam Pro','Segoe UI',Tahoma,Arial,sans-serif}
+*{box-sizing:border-box}
+html,body{min-height:100%}
+body{margin:0;color:var(--ink);font-family:var(--font);font-size:16px;-webkit-font-smoothing:antialiased;
+  background:radial-gradient(800px 420px at 50% -10%,#1d4f8f 0%,transparent 65%),var(--bg);background-attachment:fixed}
+button,input{font:inherit;color:inherit}
+button{cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+[hidden]{display:none!important}
+h1,h2,p{margin:0}
+main{max-width:520px;margin:auto;padding:max(12px,env(safe-area-inset-top)) 14px max(24px,env(safe-area-inset-bottom))}
+header{display:flex;align-items:center;gap:10px;padding:4px 0 12px}
+.logo{flex:none;width:34px;height:34px;border-radius:50%;display:grid;place-items:center;font-weight:900;color:#0a2244;
+  background:conic-gradient(from 200deg,#f5c04a,#ff8a3d,#f5c04a,#ffe7a3,#f5c04a);box-shadow:0 0 18px #f5c04a55}
+header b{display:block;font-size:10px;letter-spacing:.22em;color:var(--gold2)}
+header h1{font-size:16px;font-weight:800;line-height:1.2}
+.me{margin-left:auto;display:flex;align-items:center;gap:6px;background:linear-gradient(180deg,#ffd76e,#f0ae2c);color:#2a1a00;border-radius:999px;padding:6px 6px 6px 12px;font-weight:800;font-size:14px;border:0}
+.me i{font-style:normal;background:#2a1a0022;border-radius:999px;padding:1px 8px;font-variant-numeric:tabular-nums}
+.conn{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted);margin-bottom:12px}
+.conn::before{content:'';width:9px;height:9px;border-radius:50%;background:#ff9b4a;box-shadow:0 0 8px #ff9b4a}
+.conn.ok::before{background:var(--green);box-shadow:0 0 8px var(--green)}
+.card{background:linear-gradient(180deg,#123764ee,#0b264aee);border:1px solid var(--line);border-radius:16px;padding:18px;box-shadow:0 14px 40px #0007,inset 0 1px 0 #ffffff14}
+.tag{display:inline-flex;align-items:center;gap:6px;background:#ffffff12;border:1px solid #ffffff26;border-radius:999px;padding:4px 11px;font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--gold2)}
+.big{font-size:22px;font-weight:800;line-height:1.35;margin:12px 0 6px}
+.muted{color:var(--muted);line-height:1.55}
+.btn{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;border:0;border-radius:12px;padding:15px 18px;font-weight:800;font-size:18px;min-height:54px}
+.btn.gold{background:linear-gradient(180deg,#ffd76e,#f0ae2c);color:#2a1a00;box-shadow:0 6px 20px #f0ae2c55}
+.btn.dark{background:#ffffff12;border:1px solid #ffffff30}
+.btn:disabled{filter:grayscale(.8) brightness(.6)}
+.btn:active:not(:disabled){transform:scale(.98)}
+.teamGrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+.teamGrid button{padding:18px 10px;border-radius:14px;border:1px solid #ffffff30;background:#ffffff0d;font-size:20px;font-weight:800}
+.teamGrid button small{display:block;font-size:12px;font-weight:600;color:var(--muted);margin-top:4px}
+.boxes{display:flex;flex-wrap:wrap;gap:4px;margin:12px 0}
+.bx{width:30px;height:30px;display:grid;place-items:center;border-radius:6px;background:var(--cell);border:1px solid #3a6ba1;font-weight:900;font-size:16px}
+.bx.on{background:linear-gradient(180deg,#ffd76e,#f0ae2c);color:#2a1a00;border-color:#ffe39b}
+.gap{width:10px}
+.q{font-size:18px;font-weight:700;line-height:1.55}
+.hint{margin-top:10px;padding:10px 12px;border-radius:10px;background:#f5c04a14;border:1px dashed #f5c04a88;color:#ffe6a6;font-size:15px;line-height:1.5}
+.timer{display:flex;align-items:center;gap:10px;margin:14px 0}
+.bar{flex:1;height:10px;border-radius:9px;background:#ffffff1a;overflow:hidden}
+.bar span{display:block;height:100%;width:100%;background:linear-gradient(90deg,var(--green),var(--gold),var(--red));transform-origin:left}
+.sec{font-weight:900;font-size:22px;min-width:3ch;text-align:right;font-variant-numeric:tabular-nums}
+.sec.urgent{color:var(--red)}
+input.ans{width:100%;padding:16px;border-radius:12px;border:2px solid #4d7fb8;background:#06172e;font-size:22px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;outline:none}
+input.ans:focus{border-color:var(--gold)}
+input.ans:disabled{opacity:.6}
+.form{display:grid;gap:10px;margin-top:6px}
+.sent{margin-top:10px;padding:10px 12px;border-radius:10px;background:#3fcf8314;border:1px solid #3fcf8366;color:#bff3d6;font-weight:700;font-size:15px}
+.sent b{color:#fff}
+.warn{background:#ff6b6b14;border-color:#ff6b6b66;color:#ffd0d0}
+.result{text-align:center;padding:26px 18px}
+.result .icon{font-size:56px;line-height:1}
+#lastRes{padding:16px}#lastRes .icon{font-size:34px}#lastRes h2{font-size:20px}
+.result h2{font-size:28px;font-weight:900;margin:10px 0 6px}
+.result.ok h2{color:var(--green)}.result.no h2{color:var(--red)}
+.answer{display:inline-block;margin-top:10px;padding:8px 14px;border-radius:10px;background:#ffffff10;font-weight:900;font-size:22px;letter-spacing:.04em}
+.rank{list-style:none;padding:0;margin:14px 0 0;display:grid;gap:6px}
+.rank li{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:12px;background:#ffffff0d;border:1px solid #ffffff1f;font-weight:700}
+.rank li.me2{border-color:var(--gold);background:#f5c04a1f}
+.rank b{margin-left:auto;font-size:18px}
+.stack{display:grid;gap:12px}
+.err{color:#ffd0d0}
+.toast{position:fixed;left:50%;bottom:max(20px,env(safe-area-inset-bottom));transform:translateX(-50%);background:#0b264a;border:1px solid var(--gold);border-radius:999px;padding:10px 18px;font-weight:700;box-shadow:0 10px 30px #0009;z-index:9;max-width:90vw;text-align:center}
+.shake{animation:shake .4s}@keyframes shake{25%,75%{transform:translateX(-6px)}50%{transform:translateX(6px)}}
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <div class="logo">O</div>
+    <div><b>OLYMPIA</b><h1>Vượt chướng ngại vật</h1></div>
+    <button class="me" id="me" type="button" hidden title="Đổi tổ"><span id="meName"></span><i id="meScore">0</i></button>
+  </header>
+  <div class="conn" id="conn">Đang kết nối với màn chiếu…</div>
+
+  <!-- chọn tổ -->
+  <section class="card" id="vPick" hidden>
+    <span class="tag">Tham gia</span>
+    <p class="big">Bạn thuộc tổ nào?</p>
+    <p class="muted">Mỗi tổ chỉ nên dùng 1 điện thoại.</p>
+    <div class="teamGrid" id="teamGrid"></div>
+  </section>
+
+  <!-- chờ -->
+  <section class="stack" id="vWait" hidden>
+    <div class="card">
+      <span class="tag" id="waitTag">Đang chờ</span>
+      <p class="big" id="waitTitle">Chờ người dẫn chọn hàng ngang…</p>
+      <p class="muted" id="waitSub">Khi câu hỏi hiện trên màn chiếu, câu hỏi cũng sẽ hiện ở đây để tổ bạn nhập đáp án.</p>
+    </div>
+    <div class="card result" id="lastRes" hidden><div class="icon" id="lrIcon"></div><h2 id="lrTitle"></h2><p class="muted" id="lrSub"></p><div class="answer" id="lrAns" hidden></div></div>
+    <button class="btn dark" id="buzzBtn" type="button">🔔 Xin đoán từ khóa</button>
+    <div class="card"><span class="tag">Bảng điểm</span><ol class="rank" id="rank1"></ol></div>
+  </section>
+
+  <!-- câu hỏi hàng ngang / từ khóa -->
+  <section class="card" id="vQ" hidden>
+    <span class="tag" id="qTag"></span>
+    <div class="boxes" id="qBoxes"></div>
+    <p class="q" id="qText"></p>
+    <p class="hint" id="qHint" hidden></p>
+    <div class="timer" id="qTimer"><div class="bar"><span id="qBar"></span></div><div class="sec" id="qSec"></div></div>
+    <form class="form" id="qForm" autocomplete="off">
+      <input class="ans" id="qInput" maxlength="40" autocapitalize="characters" autocorrect="off" spellcheck="false" enterkeyhint="send" placeholder="Nhập đáp án…">
+      <button class="btn gold" id="qSend" type="submit">Gửi đáp án</button>
+    </form>
+    <p class="sent" id="qSent" hidden></p>
+  </section>
+
+  <!-- kết quả -->
+  <section class="stack" id="vRes" hidden>
+    <div class="card result" id="resCard">
+      <div class="icon" id="resIcon"></div>
+      <h2 id="resTitle"></h2>
+      <p class="muted" id="resSub"></p>
+      <div class="answer" id="resAns" hidden></div>
+    </div>
+    <div class="card"><span class="tag">Bảng điểm</span><ol class="rank" id="rank2"></ol></div>
+  </section>
+
+  <section class="card" id="vErr" hidden>
+    <span class="tag">Lỗi</span>
+    <p class="big err" id="errTitle">Không tìm thấy phòng chơi</p>
+    <p class="muted" id="errSub">Hãy quét lại mã QR trên màn chiếu.</p>
+  </section>
+</main>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/peerjs/1.5.4/peerjs.min.js"></script>
+<script>
+const $=id=>document.getElementById(id);
+const el=(t,c,x)=>{const e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e};
+const VIEWS=['vPick','vWait','vQ','vRes','vErr'];
+function view(v){VIEWS.forEach(x=>$(x).hidden=x!==v)}
+function store(k,v){try{if(v===undefined)return localStorage.getItem(k);if(v===null)localStorage.removeItem(k);else localStorage.setItem(k,v)}catch(e){return null}}
+function toast(m){const t=el('div','toast',m);document.body.append(t);setTimeout(()=>t.remove(),2200)}
+function vibrate(p){try{navigator.vibrate&&navigator.vibrate(p)}catch(e){}}
+
+const hostId=new URLSearchParams(location.search).get('h');
+const TEAM_KEY='vcnv.team.'+hostId;
+let peer,conn,teams=[],myTeam=null,last=null,timerEnd=0,timerTotal=0,raf=0,retry=0,lastPhaseKey='';
+
+function setConn(ok,text){const c=$('conn');c.classList.toggle('ok',ok);c.textContent=text}
+
+/* ---------- kết nối ---------- */
+function start(){
+  if(!hostId){view('vErr');setConn(false,'Chưa có mã phòng');return}
+  if(typeof Peer==='undefined'){view('vErr');$('errTitle').textContent='Không tải được trang';$('errSub').textContent='Kiểm tra kết nối Internet rồi tải lại trang.';return}
+  peer=new Peer({debug:0});
+  peer.on('open',connect);
+  peer.on('error',e=>{if(e.type==='peer-unavailable'){setConn(false,'Không tìm thấy màn chiếu · đang thử lại…');scheduleRetry()}
+    else setConn(false,'Lỗi kết nối ('+e.type+') · đang thử lại…')});
+  peer.on('disconnected',()=>{setTimeout(()=>{try{peer.reconnect()}catch(e){}},1500)})}
+function connect(){if(conn&&conn.open)return;setConn(false,'Đang kết nối với màn chiếu…');
+  conn=peer.connect(hostId,{reliable:true});const mine=conn;setTimeout(()=>{if(conn===mine&&!mine.open){try{mine.close()}catch(e){}scheduleRetry()}},8000);
+  conn.on('open',()=>{retry=0;setConn(true,'Đã kết nối với màn chiếu');const saved=store(TEAM_KEY);if(saved!=null)sendMsg({t:'join',team:+saved})});
+  conn.on('data',onData);
+  conn.on('close',()=>{setConn(false,'Mất kết nối · đang kết nối lại…');scheduleRetry()});
+  conn.on('error',()=>scheduleRetry())}
+function scheduleRetry(){retry++;if(retry>40){view('vErr');$('errTitle').textContent='Không kết nối được với màn chiếu';$('errSub').textContent='Hãy kiểm tra Internet, rồi quét lại mã QR trên màn chiếu.';return}
+  setTimeout(()=>{if(!conn||!conn.open){try{if(peer.disconnected)peer.reconnect()}catch(e){}connect()}},2000)}
+function sendMsg(m){try{if(conn&&conn.open){conn.send(m);return true}}catch(e){}toast('Chưa kết nối được với màn chiếu');return false}
+
+/* ---------- nhận dữ liệu ---------- */
+function onData(d){if(!d||typeof d!=='object')return;
+  if(d.t==='hello'){teams=d.teams||[];if(store(TEAM_KEY)==null)renderPick()}
+  else if(d.t==='joined'){myTeam=d.team;store(TEAM_KEY,d.team);vibrate(30)}
+  else if(d.t==='sent'){showSent(d.text,!!(last&&last.phase==='key'));vibrate(40);toast('✓ Đã gửi: '+d.text)}
+  else if(d.t==='reject'){toast(d.msg||'Không gửi được');$('vQ').classList.remove('shake');void $('vQ').offsetWidth;$('vQ').classList.add('shake')}
+  else if(d.t==='state')render(d)}
+
+function renderPick(){const g=$('teamGrid');g.replaceChildren(...teams.map((n,i)=>{const b=el('button',null,n);b.type='button';b.onclick=()=>{if(sendMsg({t:'join',team:i})){myTeam=i;store(TEAM_KEY,i)}};return b}));view('vPick');$('me').hidden=true}
+
+function renderRank(id,list){const ol=$(id);const sorted=list.map((t,i)=>Object.assign({i},t)).sort((a,b)=>b.score-a.score);
+  ol.replaceChildren(...sorted.map((t,k)=>{const li=el('li',t.i===myTeam?'me2':'');li.append(el('span',null,(k+1)+'. '+t.name+(t.out?' (đã bị loại từ khóa)':'')),el('b',null,t.score));return li}))}
+
+function boxes(words,known){const box=$('qBoxes');box.replaceChildren();let k=0;
+  words.forEach((n,w)=>{if(w)box.append(el('span','gap'));for(let x=0;x<n;x++){const ch=known?known[k]:'';const b=el('span','bx'+(ch?' on':''),ch||'');box.append(b);k++}})}
+
+function render(st){last=st;teams=st.teams.map(t=>t.name);
+  const you=st.you;
+  if(!you||you.team==null){const sv=store(TEAM_KEY);if(sv!=null&&+sv<teams.length&&conn&&conn.open&&!render.asked){render.asked=true;sendMsg({t:'join',team:+sv});return}myTeam=null;if(store(TEAM_KEY)!=null&&!(+store(TEAM_KEY)<teams.length))store(TEAM_KEY,null);renderPick();return}
+  myTeam=you.team;const me=st.teams[myTeam];$('me').hidden=false;$('meName').textContent=me.name;$('meScore').textContent=me.score;
+  const phaseKey=st.phase+(st.row?st.row.n:'');const changed=phaseKey!==lastPhaseKey;lastPhaseKey=phaseKey;
+  if(st.phase==='lobby'||st.phase==='board'){view('vWait');stopTimer();
+    const lr=render.lastRes;$('lastRes').hidden=!(lr&&st.phase==='board');
+    if(lr){$('lastRes').className='card result '+(lr.ok?'ok':'no');$('lrIcon').textContent=lr.ok?'🎉':'😔';$('lrTitle').textContent=lr.title;$('lrSub').textContent=lr.sub;$('lrAns').hidden=!lr.ans;$('lrAns').textContent=lr.ans||''}
+    $('waitTag').textContent=st.phase==='lobby'?'Sắp bắt đầu':'Đang chờ';
+    $('waitTitle').textContent=st.phase==='lobby'?'Chờ người dẫn bắt đầu trò chơi…':(st.left?'Chờ người dẫn chọn hàng ngang…':'Đã hết hàng ngang · chờ phần đoán từ khóa');
+    $('buzzBtn').hidden=st.phase==='lobby';$('buzzBtn').disabled=!!you.out;$('buzzBtn').textContent=you.out?'Tổ bạn đã bị loại khỏi phần đoán từ khóa':'🔔 Xin đoán từ khóa';
+    renderRank('rank1',st.teams);return}
+  if(st.phase==='row'||st.phase==='key'){view('vQ');if(st.phase==='key')render.lastRes=null;
+    const isKey=st.phase==='key';
+    $('qTag').textContent=isKey?'Câu hỏi từ khóa · 11 chữ cái':'Hàng ngang '+String(st.row.n).padStart(2,'0')+' · '+st.row.words.reduce((a,b)=>a+b,0)+' chữ cái';
+    boxes(isKey?st.words:st.row.words,isKey?st.known:null);
+    $('qText').textContent=isKey?'Hình ảnh và các chữ cái đã mở gợi nhớ đến chiến dịch lịch sử nào?':st.row.q;
+    $('qHint').hidden=!(isKey&&st.hint);$('qHint').textContent=st.hint||'';
+    $('qInput').placeholder=isKey?'Nhập từ khóa…':'Nhập đáp án…';$('qSend').textContent=isKey?'Gửi từ khóa (chỉ 1 lần)':'Gửi đáp án';
+    if(changed){$('qInput').value='';vibrate([60,40,60])}
+    const locked=st.closed||(isKey&&(you.out||!!you.sent));
+    $('qInput').disabled=locked;$('qSend').disabled=locked;
+    if(you.sent)showSent(you.sent,isKey);else $('qSent').hidden=true;
+    if(isKey&&you.out){$('qSent').hidden=false;$('qSent').className='sent warn';$('qSent').textContent='Tổ bạn đã bị loại khỏi phần đoán từ khóa.'}
+    else if(st.closed&&!you.sent){$('qSent').hidden=false;$('qSent').className='sent warn';$('qSent').textContent='Đã hết thời gian trả lời.'}
+    setTimer(st.remain,st.closed,st.total);
+    if(changed&&!locked)setTimeout(()=>{try{$('qInput').focus()}catch(e){}},200);
+    return}
+  if(st.phase==='rowResult'){view('vRes');stopTimer();const ok=!!you.right;
+    render.lastRes={ok,title:'Hàng ngang '+String(st.row.n).padStart(2,'0')+': '+(ok?'Chính xác! +5':'Chưa chính xác'),sub:you.sent?'Tổ bạn trả lời: '+you.sent:'Tổ bạn chưa gửi đáp án.',ans:st.answer?'Đáp án: '+st.answer:null};
+    $('resCard').className='card result '+(ok?'ok':'no');$('resIcon').textContent=ok?'🎉':'😔';
+    $('resTitle').textContent=ok?'Chính xác! +5 điểm':'Chưa chính xác';
+    $('resSub').textContent=you.sent?'Tổ bạn trả lời: '+you.sent:'Tổ bạn chưa gửi đáp án.';
+    $('resAns').hidden=!st.answer;$('resAns').textContent=st.answer?'Đáp án: '+st.answer:'';
+    if(changed)vibrate(ok?[80,60,80]:200);renderRank('rank2',st.teams);return}
+  if(st.phase==='done'){view('vRes');stopTimer();
+    $('resCard').className='card result ok';$('resIcon').textContent='🏆';$('resTitle').textContent='Từ khóa: '+st.keyword;
+    $('resSub').textContent='Trò chơi đã kết thúc. Cảm ơn tổ bạn đã tham gia!';$('resAns').hidden=true;renderRank('rank2',st.teams);return}}
+
+function showSent(text,isKey){const p=$('qSent');p.hidden=false;p.className='sent';p.replaceChildren('✓ Đã gửi: ',el('b',null,text),isKey?' · chờ người dẫn chấm':' · có thể sửa và gửi lại đến khi hết giờ');
+  if(isKey){$('qInput').disabled=true;$('qSend').disabled=true}}
+
+/* ---------- đồng hồ ---------- */
+function stopTimer(){cancelAnimationFrame(raf);raf=0}
+function setTimer(remain,closed,total){stopTimer();const t=$('qTimer');
+  if(remain==null){$('qSec').textContent='…';$('qBar').style.transform='scaleX(1)';$('qSec').classList.remove('urgent');return}
+  if(closed||remain<=0){$('qSec').textContent='0';$('qBar').style.transform='scaleX(0)';return}
+  timerTotal=total||Math.max(10,Math.ceil(remain/1000));
+  timerEnd=performance.now()+remain;
+  const loop=now=>{const left=Math.max(0,timerEnd-now);const s=Math.ceil(left/1000);$('qSec').textContent=s;$('qSec').classList.toggle('urgent',s<=3);
+    $('qBar').style.transform='scaleX('+Math.min(1,left/(timerTotal*1000))+')';if(left>0)raf=requestAnimationFrame(loop);else{$('qInput').disabled=true;$('qSend').disabled=true}};
+  raf=requestAnimationFrame(loop)}
+
+/* ---------- sự kiện ---------- */
+$('qForm').addEventListener('submit',e=>{e.preventDefault();const v=$('qInput').value.trim();if(!v){$('qInput').focus();return}
+  const isKey=last&&last.phase==='key';
+  if(isKey&&!confirm('Gửi từ khóa "'+v.toUpperCase()+'"? Mỗi tổ chỉ được gửi 1 lần, sai sẽ bị loại.'))return;
+  sendMsg({t:isKey?'kw':'answer',text:v.toUpperCase()})});
+$('buzzBtn').onclick=()=>{if(sendMsg({t:'buzz'})){$('buzzBtn').disabled=true;toast('🔔 Đã báo người dẫn');vibrate(50);setTimeout(()=>{if(!(last&&last.you&&last.you.out))$('buzzBtn').disabled=false},8000)}};
+$('me').onclick=()=>{if(confirm('Đổi sang tổ khác?')){store(TEAM_KEY,null);myTeam=null;renderPick()}};
+start();
+</script>
+</body>
+</html>
