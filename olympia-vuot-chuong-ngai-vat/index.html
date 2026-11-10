@@ -166,6 +166,21 @@ header{display:flex;align-items:center;justify-content:space-between;gap:12px;ma
 .shake{animation:shake .45s}
 @keyframes shake{20%,60%{transform:translateX(-8px)}40%,80%{transform:translateX(8px)}}
 
+/* ---------- settings ---------- */
+.introSum{margin-top:14px;color:var(--muted);font-size:15px}
+.linkBtn{background:none;border:0;color:var(--gold2);font-weight:700;text-decoration:underline;text-underline-offset:3px;padding:4px}
+.muteDot{margin-left:4px;font-size:13px}
+.setGroup{margin-top:18px}
+.setGroup>label,.setGroup>summary{display:block;font-size:12px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+#teamsNote{margin-top:8px}
+.seg button{white-space:nowrap}
+.setRow{display:flex;gap:10px;flex-wrap:wrap}.setRow .btn{flex:1 1 180px;font-size:16px;min-height:46px;padding:10px 14px}
+details.music{border:1px solid #ffffff1f;border-radius:12px;padding:12px 14px;background:#ffffff06}
+details.music>summary{cursor:pointer;margin:0;font-size:14px;color:var(--ink);list-style:none}
+details.music>summary::after{content:' ▾';color:var(--muted)}details.music[open]>summary::after{content:' ▴'}
+details.music>summary small{color:var(--green);text-transform:none;letter-spacing:0;font-weight:600}
+details.music .note{margin-top:10px}
+
 /* ---------- dialogs ---------- */
 dialog{border:0;padding:0;background:none;color:var(--ink);max-width:none;max-height:none}
 dialog::backdrop{background:#020b18c9}
@@ -208,7 +223,7 @@ dialog[open] .pop{animation:pop .3s cubic-bezier(.2,1.4,.4,1)}
   .screen{padding:4px 8px 24px}
   .side{display:flex}.board{padding:10px 8px 12px}.meta{font-size:10.5px}.legend{display:none}
   .rows{gap:4px;margin-top:10px}.row{gap:2px;padding:2px}.num{font-size:9px}.cell{border-radius:3px;font-size:clamp(9px,3.6vw,18px)}
-  .ctlBtns{grid-template-columns:1fr 1fr}.ctlBtns .btn{font-size:15px;padding:12px 10px}
+  .ctlBtns{grid-template-columns:1fr 1fr}.ctlBtns .btn{font-size:14px;padding:12px 8px;white-space:nowrap}.seg button{font-size:14px;padding:9px 2px}
   .settings{grid-template-columns:1fr}
   .introBtns{flex-direction:column}.introBtns .btn{width:100%}
   .qCard{padding:14px}.qText{font-size:19px}.qb{border-radius:5px;border-width:1px}
@@ -225,10 +240,7 @@ dialog[open] .pop{animation:pop .3s cubic-bezier(.2,1.4,.4,1)}
 <header>
   <div class="brand"><div class="logo">O</div><div><b>OLYMPIA</b><h1>Vượt chướng ngại vật</h1></div></div>
   <div class="tools">
-    <button class="ghost" id="soundBtn" aria-label="Bật/tắt âm thanh">🔊<span class="lbl"> Âm thanh</span></button>
-    <button class="ghost" id="musicBtn" aria-label="Nạp nhạc">🎵<span class="lbl"> Nạp nhạc</span></button>
-    <button class="ghost" id="fsBtn" aria-label="Toàn màn hình">⛶<span class="lbl"> Toàn màn hình</span></button>
-    <button class="ghost" id="resetBtn" aria-label="Ván mới">↻<span class="lbl"> Ván mới</span></button>
+    <button class="ghost" id="setBtn" aria-label="Cài đặt">⚙️<span class="lbl"> Cài đặt</span><span class="muteDot" id="muteDot" hidden>🔇</span></button>
   </div>
 </header>
 
@@ -246,14 +258,10 @@ dialog[open] .pop{animation:pop .3s cubic-bezier(.2,1.4,.4,1)}
         <li>Có thể đoán <b>từ khóa hàng dọc (11 chữ cái)</b> bất cứ lúc nào: đúng được <b>20 điểm</b>, sai bị loại khỏi phần đoán từ khóa.</li>
       </ol>
     </div>
-    <div class="settings">
-      <div class="panel setting"><label>Số tổ tham gia</label><div class="seg" id="segTeams"></div></div>
-      <div class="panel setting"><label>Thời gian mỗi câu</label><div class="seg" id="segTime"></div></div>
-    </div>
     <div class="introBtns">
       <button class="btn gold" id="startBtn">Bắt đầu →</button>
-      <button class="btn dark" id="introMusic">🎵 Nạp nhạc</button>
     </div>
+    <p class="introSum"><span id="introSum"></span> · <button class="linkBtn" id="introSet" type="button">⚙️ Thay đổi</button></p>
   </div>
 </section>
 
@@ -273,7 +281,7 @@ dialog[open] .pop{animation:pop .3s cubic-bezier(.2,1.4,.4,1)}
         <p class="status" id="status"></p>
         <div class="teams" id="boardTeams"></div>
         <div class="ctlBtns">
-          <button class="btn dark" id="randBtn">🎲 Chọn ngẫu nhiên</button>
+          <button class="btn dark" id="randBtn">🔀 Chọn ngẫu nhiên</button>
           <button class="btn gold" id="keyBtn">🔑 Đoán từ khóa</button>
         </div>
       </section>
@@ -314,13 +322,19 @@ dialog[open] .pop{animation:pop .3s cubic-bezier(.2,1.4,.4,1)}
   <div class="popBtns" id="popBtns"></div>
 </div></dialog>
 
-<dialog id="musicBox"><div class="pop wide">
-  <div class="tag">Âm thanh</div>
-  <h2 style="font-size:30px;margin:12px 0 6px">Nạp nhạc</h2>
-  <p class="note">Chọn file mp3/wav có sẵn trên máy (ví dụ nhạc trong file PowerPoint của lớp). Nhạc chỉ được lưu <b>trong trình duyệt của máy này</b>, không tải lên mạng. Ô nào để trống sẽ dùng âm thanh tạo sẵn của game.</p>
-  <div class="slots" id="slots"></div>
+<dialog id="setBox"><div class="pop wide">
+  <div class="tag">⚙️ Cài đặt</div>
+  <div class="setGroup"><label>Số tổ tham gia</label><div class="seg" id="segTeams"></div><p class="note" id="teamsNote" hidden>Số tổ mới được áp dụng khi chơi lại.</p></div>
+  <div class="setGroup"><label>Thời gian mỗi câu</label><div class="seg" id="segTime"></div></div>
+  <div class="setGroup"><label>Âm thanh &amp; màn hình</label>
+    <div class="setRow"><button class="btn dark" id="soundBtn" type="button">🔊 Âm thanh: Bật</button><button class="btn dark" id="fsBtn" type="button">⛶ Toàn màn hình</button></div></div>
+  <details class="setGroup music" id="musicSec">
+    <summary>🎵 Nạp nhạc <small id="musicCount"></small></summary>
+    <p class="note">Chọn file mp3/wav có sẵn trên máy. Nhạc chỉ được lưu <b>trong trình duyệt của máy này</b>, không tải lên mạng. Mục nào để trống sẽ dùng âm thanh tạo sẵn của game.</p>
+    <div class="slots" id="slots"></div>
+  </details>
   <input type="file" id="filePick" accept="audio/*,.mp3,.wav,.m4a,.ogg" hidden>
-  <div class="popBtns"><button class="btn gold" id="musicClose">Xong</button></div>
+  <div class="popBtns"><button class="btn gold" id="setClose" type="button">Xong</button><button class="btn red" id="resetBtn" type="button">↻ Chơi lại</button></div>
 </div></dialog>
 
 <script>
@@ -416,7 +430,7 @@ function toast(msg){const t=el('div','toast',msg);document.body.append(t);setTim
 /* ================= TRẠNG THÁI ================= */
 let cfg={teams:+(store('vcnv.teams')||4),time:+(store('vcnv.time')||10)};
 let S;function fresh(){S={teams:Array.from({length:cfg.teams},(_,i)=>({name:'Tổ '+(i+1),score:0,out:false})),turn:0,rows:Array(QA.length).fill('idle'),correct:0,
-  screen:'intro',mode:null,cur:-1,answerer:0,judged:false,center:false,done:false,busy:false}}
+  screen:'scrIntro',mode:null,cur:-1,answerer:0,judged:false,center:false,done:false,busy:false}}
 fresh();
 let timer={raf:0,end:0,last:-1,running:false,think:false};
 let tiles=[];
@@ -425,8 +439,8 @@ function show(id){if(document.activeElement&&document.activeElement.blur)documen
 
 /* ---------- màn giới thiệu ---------- */
 function buildSeg(box,vals,cur,fmt,on){box.replaceChildren(...vals.map(v=>{const b=el('button',null,fmt(v));b.type='button';b.setAttribute('aria-pressed',v===cur);b.onclick=()=>{on(v);[...box.children].forEach(x=>x.setAttribute('aria-pressed',x===b))};return b}))}
-buildSeg($('segTeams'),[2,3,4,5,6],cfg.teams,v=>v+' tổ',v=>{cfg.teams=v;store('vcnv.teams',v)});
-buildSeg($('segTime'),[10,15,20,30],cfg.time,v=>v+' giây',v=>{cfg.time=v;store('vcnv.time',v);document.querySelectorAll('.tSec').forEach(x=>x.textContent=v)});
+buildSeg($('segTeams'),[2,3,4,5,6],cfg.teams,v=>v+' tổ',v=>{cfg.teams=v;store('vcnv.teams',v);updateSettingsUI()});
+buildSeg($('segTime'),[10,15,20,30],cfg.time,v=>v+' giây',v=>{cfg.time=v;store('vcnv.time',v);document.querySelectorAll('.tSec').forEach(x=>x.textContent=v);updateSettingsUI()});
 document.querySelectorAll('.tSec').forEach(x=>x.textContent=cfg.time);
 
 /* ---------- bảng ô chữ ---------- */
@@ -452,7 +466,7 @@ function renderBoard(){
   teamChips($('boardTeams'),{sel:S.turn,pick:i=>{S.turn=i;renderBoard()}});
   const left=S.rows.filter(x=>x==='idle').length;
   const st=$('status');st.replaceChildren();
-  if(S.done){st.append('Đã tìm ra từ khóa ',el('em',null,KEYWORD),'. Bấm ↻ để chơi ván mới.')}
+  if(S.done){st.append('Đã tìm ra từ khóa ',el('em',null,KEYWORD),'. Vào ⚙️ Cài đặt → Chơi lại để chơi lần nữa.')}
   else if(!left){st.append('Đã hết hàng ngang. Mời các tổ ',el('em',null,'đoán từ khóa'),'!')}
   else st.append('Lượt của ',el('em',null,S.teams[S.turn].name),' · chọn một hàng ngang (còn '+left+' hàng).');
   $('randBtn').disabled=!left||S.done||S.busy;$('keyBtn').disabled=S.done||S.busy;
@@ -524,7 +538,7 @@ function finalReveal(winner){S.judged=true;stopTimer();stopSounds();S.done=true;
     setTimeout(()=>{confetti();popMsg({tag:'Từ khóa hàng dọc',title:KEYWORD,body:(winner!=null?S.teams[winner].name+' đoán đúng từ khóa · +'+PTS_KEY+' điểm. ':'')+KEY_NOTE,btns:[['🏆 Xem bảng điểm','gold',showRank],['Đóng','dark']]})},1500)},S.screen==='scrQ'?1600:0)}
 function showRank(){const sorted=S.teams.map((t,i)=>({...t,i})).sort((a,b)=>b.score-a.score);const ol=el('ol','rank');
   sorted.forEach((t,k)=>{const li=el('li');li.append(el('i',null,(k+1)+'.'),document.createTextNode(t.name),el('b',null,t.score));ol.append(li)});
-  setTimeout(()=>popMsg({tag:'Kết quả',title:'Bảng điểm',node:ol,btns:[['↻ Ván mới','gold',()=>{fresh();show('scrIntro')}],['Đóng','dark']]}),50)}
+  setTimeout(()=>popMsg({tag:'Kết quả',title:'Bảng điểm',node:ol,btns:[['↻ Chơi lại','gold',()=>{fresh();show('scrIntro')}],['Đóng','dark']]}),50)}
 
 /* ---------- popup ---------- */
 function popMsg({tag,title,body,node,letter,btns}){const d=$('popBox');$('popTag').textContent=tag||'';$('popTitle').textContent=title||'';
@@ -537,15 +551,19 @@ function confetti(){if(matchMedia('(prefers-reduced-motion: reduce)').matches)re
 
 /* ---------- nạp nhạc ---------- */
 let pickSlot=null;
+function updateSettingsUI(){const n=SLOTS.filter(([k])=>custom[k]).length;$('musicCount').textContent=n?'· '+n+'/'+SLOTS.length+' mục đã có nhạc':'';
+  $('teamsNote').hidden=S.screen==='scrIntro';$('introSum').textContent=cfg.teams+' tổ · '+cfg.time+' giây/câu';
+  $('soundBtn').textContent=muted?'🔇 Âm thanh: Tắt':'🔊 Âm thanh: Bật';$('muteDot').hidden=!muted;
+  $('fsBtn').textContent=document.fullscreenElement?'⛶ Thoát toàn màn hình':'⛶ Toàn màn hình'}
+function openSettings(){audio();renderSlots();updateSettingsUI();openDlg($('setBox'))}
 function renderSlots(){$('slots').replaceChildren(...SLOTS.map(([k,label,when])=>{const r=el('div','slot');const c=custom[k];
   r.append(el('strong',null,label),el('small',c?'has':null,c?'✓ '+c.name:when+' · âm thanh tạo sẵn'));
   const acts=el('div','acts');const pick=el('button',null,c?'Đổi':'Chọn file');pick.type='button';pick.onclick=()=>{pickSlot=k;$('filePick').value='';$('filePick').click()};
   const play=el('button',null,'▶');play.type='button';play.title='Nghe thử';play.onclick=()=>{stopSounds();sfx(k,true)};
-  acts.append(play,pick);if(c){const del=el('button',null,'✕');del.type='button';del.title='Xoá';del.onclick=()=>{clearCustom(k);dbPut(k,null);renderSlots()};acts.append(del)}
+  acts.append(play,pick);if(c){const del=el('button',null,'✕');del.type='button';del.title='Xoá';del.onclick=()=>{clearCustom(k);dbPut(k,null);renderSlots();updateSettingsUI()};acts.append(del)}
   r.append(acts);return r}))}
-$('filePick').onchange=async e=>{const f=e.target.files[0];if(!f||!pickSlot)return;setCustom(pickSlot,f.name,f);renderSlots();await dbPut(pickSlot,{name:f.name,blob:f})};
-function openMusic(){audio();renderSlots();openDlg($('musicBox'))}
-$('musicBtn').onclick=openMusic;$('introMusic').onclick=openMusic;$('musicClose').onclick=()=>{stopSounds();closeDlg($('musicBox'))};
+$('filePick').onchange=async e=>{const f=e.target.files[0];if(!f||!pickSlot)return;setCustom(pickSlot,f.name,f);renderSlots();updateSettingsUI();await dbPut(pickSlot,{name:f.name,blob:f})};
+$('setBtn').onclick=openSettings;$('introSet').onclick=openSettings;$('setClose').onclick=()=>{stopSounds();closeDlg($('setBox'))};
 /* Khi chạy trên máy (localhost / file) game tự lấy nhạc trong thư mục ../audio/ nếu có.
    Trên GitHub Pages không tìm (nhạc gốc không được đăng công khai). File nạp bằng nút 🎵 luôn được ưu tiên. */
 const LOCAL_DIR='../audio/';
@@ -570,10 +588,11 @@ $('retimeBtn').onclick=()=>{if(!S.judged)startTimer(S.mode==='key'?Math.max(15,c
 $('hintBtn').onclick=()=>{S.center=true;$('qHint').hidden=false;$('hintBtn').hidden=true;sfx('piece')};
 function back(){if(S.screen!=='scrQ'||(S.judged&&S.mode==='row'))return;stopTimer();stopSounds();show('scrBoard');renderBoard()}
 $('backBtn').onclick=back;
-$('resetBtn').onclick=()=>popMsg({tag:'Ván mới',title:'Chơi lại từ đầu?',body:'Điểm số và bảng ô chữ sẽ được đặt lại.',btns:[['↻ Chơi lại','gold',()=>{stopTimer();stopSounds();fresh();show('scrIntro')}],['Quay lại','dark']]});
-function setMute(m){muted=m;$('soundBtn').innerHTML=(m?'🔇':'🔊')+'<span class="lbl"> Âm thanh</span>';if(m)stopSounds();if(master)master.gain.value=m?0:.8}
+$('resetBtn').onclick=()=>{closeDlg($('setBox'));resetAsk()};function resetAsk(){popMsg({tag:'Chơi lại',title:'Chơi lại từ đầu?',body:'Điểm số và bảng ô chữ sẽ được đặt lại.',btns:[['↻ Chơi lại','gold',()=>{stopTimer();stopSounds();fresh();show('scrIntro');updateSettingsUI()}],['Quay lại','dark']]})}
+function setMute(m){muted=m;if(m)stopSounds();if(master)master.gain.value=m?0:.8;updateSettingsUI()}
 $('soundBtn').onclick=()=>setMute(!muted);
 $('fsBtn').hidden=!document.fullscreenEnabled;
+document.addEventListener('fullscreenchange',()=>updateSettingsUI());
 $('fsBtn').onclick=async()=>{try{document.fullscreenElement?await document.exitFullscreen():await document.documentElement.requestFullscreen()}catch(e){}};
 $('photo').onclick=()=>{const ov=el('div','zoomed');const ph=$('photo').cloneNode(true);ph.id='';ov.append(ph);ov.onclick=()=>ov.remove();document.body.append(ov)};
 document.addEventListener('keydown',e=>{
@@ -581,7 +600,7 @@ document.addEventListener('keydown',e=>{
   if(e.target&&e.target.tagName==='BUTTON'&&!e.target.disabled&&(e.key==='Enter'||e.key===' '))return;
   if(e.key==='m'||e.key==='M'){setMute(!muted);return}
   const z=document.querySelector('.zoomed');if(z){if(e.key==='Escape')z.remove();return}
-  if(isOpen($('popBox'))||isOpen($('musicBox'))){if(e.key==='Escape'){e.preventDefault();closeDlg($('popBox'));closeDlg($('musicBox'))}return}
+  if(isOpen($('popBox'))||isOpen($('setBox'))){if(e.key==='Escape'){e.preventDefault();closeDlg($('popBox'));closeDlg($('setBox'))}return}
   if(S.screen==='scrQ'){
     if(e.key==='Enter'&&!e.repeat){e.preventDefault();judge(true)}
     else if((e.key==='s'||e.key==='S')&&!e.repeat){e.preventDefault();judge(false)}
@@ -593,7 +612,7 @@ document.addEventListener('keydown',e=>{
     else if(/^[0-9]$/.test(e.key)){/* phím số chọn nhanh hàng 1-9, 0 = 10 */const j=e.key==='0'?9:+e.key-1;if(j<QA.length)pickRow(j)}}
   else if(S.screen==='scrIntro'&&e.key==='Enter'&&e.target===document.body){startGame()}
 });
-buildBoard();
+buildBoard();updateSettingsUI();
 </script>
 </body>
 </html>
