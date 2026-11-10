@@ -186,7 +186,8 @@ body{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;text-r
 #setBtn .muteDot{margin:0}
 .tools{position:static!important;transform:none!important}
 .setRow .btn{gap:10px}.setRow .btn .ic{opacity:.9}
-#soundBtn.off{color:#ffb4b4}
+#soundBtn.off,#voiceBtn.off{color:#ffb4b4}
+.ring.reading #sec{font-size:.62em;animation:rd 1.1s ease-in-out infinite}@keyframes rd{50%{opacity:.45;transform:scale(.92)}}
 details summary{display:flex!important;align-items:center;gap:10px}details summary>.ic:first-child{color:var(--gold2)}details summary .chev{margin-left:auto;transition:transform .2s;opacity:.7}details[open] summary .chev{transform:rotate(180deg)}
 .btn .ic{width:1.15em;height:1.15em}
 .setGroup{margin-top:18px}
@@ -389,7 +390,7 @@ dialog[open] .pop{animation:pop .3s cubic-bezier(.2,1.4,.4,1)}
   <div class="setGroup"><label>Số tổ tham gia</label><div class="seg" id="segTeams"></div><p class="note" id="teamsNote" hidden>Số tổ mới được áp dụng khi chơi lại.</p></div>
   <div class="setGroup"><label>Thời gian mỗi câu</label><div class="seg" id="segTime"></div></div>
   <div class="setGroup"><label>Âm thanh &amp; màn hình</label>
-    <div class="setRow"><button class="btn dark" id="soundBtn" type="button"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M11 4.7a.7.7 0 0 0-1.2-.5L6.4 7.6A1.4 1.4 0 0 1 5.4 8H3a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h2.4a1.4 1.4 0 0 1 1 .4l3.4 3.4a.7.7 0 0 0 1.2-.5z"/><path d="M16 9a5 5 0 0 1 0 6"/><path d="M19.4 18.4a9 9 0 0 0 0-12.8"/></svg><span>Âm thanh: Bật</span></button><button class="btn dark" id="fsBtn" type="button"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3"/><path d="M21 8V5a2 2 0 0 0-2-2h-3"/><path d="M3 16v3a2 2 0 0 0 2 2h3"/><path d="M16 21h3a2 2 0 0 0 2-2v-3"/></svg><span>Toàn màn hình</span></button></div></div>
+    <div class="setRow"><button class="btn dark" id="voiceBtn" type="button"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/></svg><span id="voiceLbl">Đọc câu hỏi: Bật</span></button><button class="btn dark" id="soundBtn" type="button"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M11 4.7a.7.7 0 0 0-1.2-.5L6.4 7.6A1.4 1.4 0 0 1 5.4 8H3a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h2.4a1.4 1.4 0 0 1 1 .4l3.4 3.4a.7.7 0 0 0 1.2-.5z"/><path d="M16 9a5 5 0 0 1 0 6"/><path d="M19.4 18.4a9 9 0 0 0 0-12.8"/></svg><span>Âm thanh: Bật</span></button><button class="btn dark" id="fsBtn" type="button"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3"/><path d="M21 8V5a2 2 0 0 0-2-2h-3"/><path d="M3 16v3a2 2 0 0 0 2 2h3"/><path d="M16 21h3a2 2 0 0 0 2-2v-3"/></svg><span>Toàn màn hình</span></button></div></div>
   <div class="setGroup"><label>Trả lời bằng điện thoại</label>
     <div class="setRow"><button class="btn dark" id="phoneBtn" type="button"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect width="5" height="5" x="3" y="3" rx="1"/><rect width="5" height="5" x="16" y="3" rx="1"/><rect width="5" height="5" x="3" y="16" rx="1"/><path d="M21 16h-3a2 2 0 0 0-2 2v3"/><path d="M21 21v.01"/><path d="M12 7v3a2 2 0 0 1-2 2H7"/><path d="M3 12h.01"/><path d="M12 3h.01"/><path d="M12 16v.01"/><path d="M16 12h1"/><path d="M21 12v.01"/><path d="M12 21v-1"/></svg><span>Bật &amp; hiện mã QR</span></button></div>
     <p class="note" style="margin-top:8px">Mỗi tổ quét mã QR bằng điện thoại để gửi đáp án. Máy chiếu và điện thoại đều cần có Internet.</p></div>
@@ -476,7 +477,7 @@ SYN.opening=SYN.fanfare;
 function sfx(name,arg){if(muted)return;const c=custom[name];
   if(c){try{c.audio.muted=false;c.audio.currentTime=0;c.audio.loop=(name==='think');const p=c.audio.play();playing.add(c.audio);if(p&&p.catch){p.catch(()=>{});return p}return Promise.resolve()}catch(e){return Promise.reject(e)}}
   if(!audio())return;if(SYN[name])SYN[name](arg)}
-function stopSounds(){THINK.stop();playing.forEach(a=>{try{a.pause()}catch(e){}});playing.clear()}
+function stopSounds(){THINK.stop();if(typeof VOICE!=='undefined')VOICE.stop();playing.forEach(a=>{try{a.pause()}catch(e){}});playing.clear()}
 function stopOne(name){if(name==='think')THINK.stop();const c=custom[name];if(c){try{c.audio.pause()}catch(e){}playing.delete(c.audio)}}
 
 /* lưu nhạc trong IndexedDB của trình duyệt */
@@ -563,15 +564,17 @@ function openQuestion(j){stopSounds();S.mode='row';S.cur=j;S.answerer=S.turn;S.j
   $('qTag').textContent='Hàng ngang '+pad(j+1);$('qLen').textContent=letters(QA[j][1]).length+' chữ cái';
   renderBoxes(QA[j][1]);$('qText').textContent=QA[j][0];$('qHint').hidden=true;$('result').textContent='';$('result').className='result';$('whoLbl').textContent='Tổ trả lời';
   renderQTeams();setJudgeBtns();resetRing(cfg.time);show('scrQ');renderAns();
-  sfx('question');const d=custom.question?Math.min(4,custom.question.audio.duration||2):1.5;
-  setTimeout(()=>{if(S.screen==='scrQ'&&S.mode==='row'&&S.cur===j&&!S.judged){stopOne('question');startTimer(cfg.time)}},d*1000)}
+  sfx('question');const d=custom.question?Math.min(4,custom.question.audio.duration||2):1.5;const vn='cau-'+pad(j+1);
+  const still=()=>S.screen==='scrQ'&&S.mode==='row'&&S.cur===j&&!S.judged&&!timer.running;
+  setTimeout(()=>{if(!still())return;stopOne('question');if(VOICE.has(vn)){VOICE.play(vn,()=>{if(still())startTimer(cfg.time)});pushState()}else startTimer(cfg.time)},(VOICE.has(vn)?Math.min(d,2.2):d)*1000)}
 function openKeyword(){if(S.done)return;stopSounds();audio();prime();S.mode='key';S.cur=-1;S.judged=false;PH.kw=[];PH.shown=false;PH.marks={};PH.winners=[];
   const avail=S.teams.findIndex((t,i)=>!t.out&&i>=S.turn);S.answerer=avail>=0?avail:Math.max(0,S.teams.findIndex(t=>!t.out));
   $('qTag').textContent='Câu hỏi từ khóa';$('qLen').textContent='11 chữ cái';
   renderBoxes(KEYWORD,k=>S.rows[k]==='right');$('qText').textContent=KEY_Q;$('qHint').textContent=KEY_HINT;$('qHint').hidden=!S.center;
   $('result').textContent='';$('result').className='result';$('whoLbl').textContent='Tổ đoán từ khóa';
   renderQTeams();setJudgeBtns();resetRing(Math.max(15,cfg.time));show('scrQ');renderAns();
-  sfx('keyword');setTimeout(()=>{if(S.screen==='scrQ'&&S.mode==='key'&&!S.judged){stopOne('keyword');startTimer(Math.max(15,cfg.time))}},custom.keyword?Math.min(4,custom.keyword.audio.duration||2)*1000:2200)}
+  const kstill=()=>S.screen==='scrQ'&&S.mode==='key'&&!S.judged&&!timer.running;
+  sfx('keyword');setTimeout(()=>{if(!kstill())return;stopOne('keyword');if(VOICE.has('tu-khoa')){VOICE.play('tu-khoa',()=>{if(kstill())startTimer(Math.max(15,cfg.time))});pushState()}else startTimer(Math.max(15,cfg.time))},custom.keyword?Math.min(4,custom.keyword.audio.duration||2)*1000:2200)}
 
 /* ---------- đồng hồ ---------- */
 const THINK={iv:0,bus:null,next:0,step:0,
@@ -588,8 +591,25 @@ const THINK={iv:0,bus:null,next:0,step:0,
     if(k===0)ch.forEach(n=>tone(m(n),t,e*7.6,{type:'triangle',vol:.022,attack:.3,release:.6,dest:d}));// nền hợp âm
     if(cyc>0){const arp=[0,1,2,1,0,2,1,2][k];tone(m(ch[arp]+12),t,e*.7,{type:'square',vol:.018,lp:2600,dest:d})} // arpeggio từ vòng 2
     if(bar===3&&k>=6)noise(t,.06,{f:2400,q:.8,vol:.05+.03*(k-6),dest:d})}};
+/* ---------- giọng đọc câu hỏi: đọc xong mới tính giờ ---------- */
+let voiceOn=store('vcnv.voice')!=='0';
+const VOICE={list:{},cur:null,token:0,
+  load(){const names=QA.map((_,j)=>'cau-'+String(j+1).padStart(2,'0')).concat('tu-khoa');
+    names.forEach(n=>{const tryExt=(exts)=>{if(!exts.length)return;const a=new Audio();a.preload='auto';
+      a.addEventListener('canplaythrough',()=>{if(!this.list[n])this.list[n]=a},{once:true});
+      a.addEventListener('error',()=>tryExt(exts.slice(1)),{once:true});a.src='nhac/doc/'+n+'.'+exts[0]};tryExt(['mp3','wav'])})},
+  has(n){return voiceOn&&!muted&&!!this.list[n]},
+  /* phát rồi gọi done() khi đọc xong (hoặc lỗi/bị bỏ qua) */
+  play(n,done){this.stop();const a=this.list[n];const tk=++this.token;let fin=false;
+    const end=()=>{if(fin||tk!==this.token)return;fin=true;this.cur=null;$('ring').classList.remove('reading');done()};
+    if(!a||!voiceOn||muted){end();return}
+    this.cur=a;$('ring').classList.add('reading');$('sec').textContent='🔊';
+    try{a.currentTime=0;a.onended=()=>setTimeout(end,350);const p=a.play();if(p&&p.catch)p.catch(end)}catch(e){end()}
+    setTimeout(end,((a.duration||30)+3)*1000)},
+  stop(){this.token++;if(this.cur){try{this.cur.pause()}catch(e){}this.cur=null}$('ring').classList.remove('reading')},
+  get reading(){return !!this.cur}};
 function resetRing(sec){stopTimer();timer.end=Infinity;const r=$('ring');r.className='ring';r.style.setProperty('--p',1);$('sec').textContent=sec}
-function startTimer(sec){stopTimer();timer.total=sec;timer.end=performance.now()+sec*1000;timer.last=sec;timer.running=true;$('sec').textContent=sec;
+function startTimer(sec){VOICE.stop();stopTimer();timer.total=sec;timer.end=performance.now()+sec*1000;timer.last=sec;timer.running=true;$('sec').textContent=sec;
   pushState();stopOne('question');timer.think=false;if(!muted){if(custom.think){timer.think=true;const p=sfx('think');if(p&&p.catch)p.catch(()=>{timer.think=THINK.start()})}else timer.think=THINK.start()}
   const loop=now=>{if(!timer.running)return;const left=Math.max(0,(timer.end-now)/1000);const s=Math.ceil(left);
     $('ring').style.setProperty('--p',left/timer.total);
@@ -642,6 +662,7 @@ let pickSlot=null;
 function updateSettingsUI(){const n=SLOTS.filter(([k])=>custom[k]).length;$('musicCount').textContent=n?'· '+n+'/'+SLOTS.length+' mục đã có nhạc':'';
   $('teamsNote').hidden=S.screen==='scrIntro';
   $('soundBtn').innerHTML=muted?ICON.mute+'<span>Âm thanh: Tắt</span>':ICON.vol+'<span>Âm thanh: Bật</span>';$('soundBtn').classList.toggle('off',muted);$('muteDot').hidden=!muted;
+  $('voiceLbl').textContent='Đọc câu hỏi: '+(voiceOn?'Bật':'Tắt');$('voiceBtn').classList.toggle('off',!voiceOn);
   $('fsBtn').innerHTML=document.fullscreenElement?ICON.min+'<span>Thoát toàn màn hình</span>':ICON.max+'<span>Toàn màn hình</span>'}
 function openSettings(){audio();renderSlots();updateSettingsUI();openDlg($('setBox'))}
 function renderSlots(){$('slots').replaceChildren(...SLOTS.map(([k,label,when])=>{const r=el('div','slot');const c=custom[k];
@@ -775,9 +796,9 @@ function remain(){return timer.running?Math.max(0,Math.round(timer.end-performan
 function phaseInfo(){if(S.screen==='scrIntro')return{phase:'lobby'};if(S.done)return{phase:'done',keyword:KEYWORD};
   if(S.screen==='scrQ'&&S.mode==='row'){const a=QA[S.cur][1];const row={n:S.cur+1,q:QA[S.cur][0],words:a.split(' ').map(w=>[...w].length)};
     if(S.judged)return{phase:'rowResult',row,answer:S.rows[S.cur]==='right'?a:null};
-    return{phase:'row',row,remain:remain(),total:timer.total||cfg.time,closed:PH.shown||!timeOpen()}}
+    return{phase:'row',row,reading:VOICE.reading,remain:remain(),total:timer.total||cfg.time,closed:PH.shown||!timeOpen()}}
   if(S.screen==='scrQ'&&S.mode==='key'){const ls=letters(KEYWORD);
-    return{phase:'key',known:ls.map((ch,k)=>S.rows[k]==='right'?ch:''),words:KEYWORD.split(' ').map(w=>[...w].length),hint:S.center?KEY_HINT:null,remain:remain(),total:timer.total||cfg.time,closed:S.judged||PH.shown||!timeOpen()}}
+    return{phase:'key',reading:VOICE.reading,known:ls.map((ch,k)=>S.rows[k]==='right'?ch:''),words:KEYWORD.split(' ').map(w=>[...w].length),hint:S.center?KEY_HINT:null,remain:remain(),total:timer.total||cfg.time,closed:S.judged||PH.shown||!timeOpen()}}
   return{phase:'board',left:S.rows.filter(x=>x==='idle').length}}
 function pushState(only){if(!PH.on||!PH.conns.size)return;const info=phaseInfo();const teams=S.teams.map(t=>({name:t.name,score:t.score,out:t.out}));
   PH.conns.forEach(c=>{if(only&&c!==only)return;const i=c.team;let you=null;
@@ -802,7 +823,7 @@ function back(){if(S.screen!=='scrQ'||(S.judged&&S.mode==='row'))return;stopTime
 $('backBtn').onclick=back;
 $('resetBtn').onclick=()=>{closeDlg($('setBox'));resetAsk()};function resetAsk(){popMsg({tag:'Chơi lại',title:'Chơi lại từ đầu?',body:'Điểm số và bảng ô chữ sẽ được đặt lại.',btns:[['Chơi lại','gold',()=>{stopTimer();stopSounds();fresh();show('scrIntro');updateSettingsUI()}],['Quay lại','dark']]})}
 function setMute(m){muted=m;if(m)stopSounds();if(master)master.gain.value=m?0:.8;updateSettingsUI()}
-$('soundBtn').onclick=()=>setMute(!muted);
+$('soundBtn').onclick=()=>setMute(!muted);$('voiceBtn').onclick=()=>{voiceOn=!voiceOn;store('vcnv.voice',voiceOn?'1':'0');if(!voiceOn)VOICE.stop();updateSettingsUI()};VOICE.load();
 $('fsBtn').hidden=!document.fullscreenEnabled;
 document.addEventListener('fullscreenchange',()=>updateSettingsUI());
 $('fsBtn').onclick=async()=>{try{document.fullscreenElement?await document.exitFullscreen():await document.documentElement.requestFullscreen()}catch(e){}};

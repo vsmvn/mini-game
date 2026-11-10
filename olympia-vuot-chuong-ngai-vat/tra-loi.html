@@ -245,7 +245,7 @@ function render(st){last=st;teams=st.teams.map(t=>t.name);
     if(you.sent)showSent(you.sent,isKey);else $('qSent').hidden=true;
     if(isKey&&you.out){$('qSent').hidden=false;$('qSent').className='sent warn';$('qSent').textContent='Tổ bạn đã bị loại khỏi phần đoán từ khóa.'}
     else if(st.closed&&!you.sent){$('qSent').hidden=false;$('qSent').className='sent warn';$('qSent').textContent='Đã hết thời gian trả lời.'}
-    setTimer(st.remain,st.closed,st.total);
+    setTimer(st.remain,st.closed,st.total);if(st.reading){$('qSec').textContent='🔊'}
     if(changed&&!locked)setTimeout(()=>{try{$('qInput').focus()}catch(e){}},200);
     return}
   if(st.phase==='rowResult'){view('vRes');stopTimer();const ok=!!you.right;
