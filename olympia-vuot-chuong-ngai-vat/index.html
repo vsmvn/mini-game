@@ -396,9 +396,12 @@ dialog[open] .pop{animation:pop .3s cubic-bezier(.2,1.4,.4,1)}
   <details class="setGroup music" id="musicSec">
     <summary><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg><span>Nạp nhạc</span> <small id="musicCount"></small><svg class="ic chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></summary>
     <p class="note">Chọn file mp3/wav có sẵn trên máy. Nhạc chỉ được lưu <b>trong trình duyệt của máy này</b>, không tải lên mạng. Mục nào để trống sẽ dùng âm thanh tạo sẵn của game.</p>
+    <button class="btn dark" id="bulkBtn" type="button" style="width:100%;margin:2px 0 10px"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/><path d="M12 10v6"/><path d="m15 13-3-3-3 3"/></svg><span>Nạp nhiều file cùng lúc</span></button>
+    <p class="note" style="margin:-4px 0 10px">Chọn tất cả file nhạc một lần, game tự xếp theo tên file (vd: <i>nhac-mo-dau</i>, <i>cho-thi-sinh-tra-loi</i>, <i>het-gio</i>, <i>tra-loi-dung</i>, <i>tra-loi-sai</i>, <i>mo-manh-ghep</i>, <i>cau-hoi-tu-khoa</i>, <i>cong-bo-tu-khoa</i>…).</p>
     <div class="slots" id="slots"></div>
   </details>
   <input type="file" id="filePick" accept="audio/*,.mp3,.wav,.m4a,.ogg" hidden>
+  <input type="file" id="fileMany" accept="audio/*,.mp3,.wav,.m4a,.ogg" multiple hidden>
   <div class="popBtns"><button class="btn gold" id="setClose" type="button">Xong</button><button class="btn red" id="resetBtn" type="button"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>Chơi lại</button></div>
 </div></dialog>
 
@@ -648,6 +651,17 @@ function renderSlots(){$('slots').replaceChildren(...SLOTS.map(([k,label,when])=
   acts.append(play,pick);if(c){const del=el('button',null,'✕');del.type='button';del.title='Xoá';del.onclick=()=>{clearCustom(k);dbPut(k,null);renderSlots();updateSettingsUI()};acts.append(del)}
   r.append(acts);return r}))}
 $('filePick').onchange=async e=>{const f=e.target.files[0];if(!f||!pickSlot)return;setCustom(pickSlot,f.name,f);renderSlots();updateSettingsUI();await dbPut(pickSlot,{name:f.name,blob:f})};
+/* nạp nhiều file: đoán mục theo tên file (bỏ dấu, bỏ số thứ tự) */
+const GUESS=[['keyword',/tu-?khoa.*(cau|hoi)|cau-hoi-tu-khoa|hang-doc/],['fanfare',/cong-bo|chien-thang|fanfare/],['think',/cho-thi-sinh|suy-nghi|nhac-cho|dem-gio|think/],
+  ['tick',/dem-giay|tich-tac|beep|tick/],['timeup',/het-gio|time-?up/],['correct',/tra-loi-dung|dung|correct/],['wrong',/tra-loi-sai|sai|wrong/],
+  ['piece',/manh|mo-anh|hinh-anh|piece/],['opening',/mo-dau|nhac-hieu-chuong|opening|intro/],['question',/cau-hoi|nhac-hieu|question/]];
+function slotOf(name){const n=name.normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/đ/gi,'d').toLowerCase().replace(/\.[a-z0-9]+$/,'').replace(/[^a-z0-9]+/g,'-').replace(/^[0-9]+-/,'');
+  for(const [k,re] of GUESS)if(re.test(n))return k;return null}
+$('bulkBtn').onclick=()=>{$('fileMany').value='';$('fileMany').click()};
+$('fileMany').onchange=async e=>{const files=[...e.target.files];const ok=[],skip=[],used={};
+  for(const f of files){const k=slotOf(f.name);if(!k||used[k]){skip.push(f.name);continue}used[k]=1;setCustom(k,f.name,f);ok.push(k);try{await dbPut(k,{name:f.name,blob:f})}catch(x){}}
+  renderSlots();updateSettingsUI();
+  toast(ok.length?'Đã nạp '+ok.length+' file'+(skip.length?' · bỏ qua '+skip.length+' file không nhận ra tên':''):'Không nhận ra file nào — hãy nạp từng mục bằng nút "Chọn file"')};
 $('setBtn').onclick=openSettings;$('setClose').onclick=()=>{stopSounds();closeDlg($('setBox'))};
 /* Khi chạy trên máy (localhost / file) game tự lấy nhạc trong thư mục ../audio/ nếu có.
    Trên GitHub Pages không tìm (nhạc gốc không được đăng công khai). File nạp bằng nút 🎵 luôn được ưu tiên. */
