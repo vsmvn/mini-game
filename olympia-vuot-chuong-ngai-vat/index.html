@@ -278,6 +278,9 @@ dialog[open] .pop{animation:pop .3s cubic-bezier(.2,1.4,.4,1)}
 #spSkip.show{opacity:1;pointer-events:auto}#spSkip:hover{color:#fff;border-color:#ffffff66}
 @keyframes spRot{to{transform:rotate(360deg)}}@keyframes spGlow{50%{opacity:.45;transform:scale(.92)}}
 @media (prefers-reduced-motion:reduce){#splash::before,.spLogo::before,.spLogo::after{animation:none}}
+#inapp{position:fixed;left:10px;right:10px;top:10px;z-index:150;display:flex;gap:10px;align-items:center;padding:10px 12px;border-radius:14px;
+  background:#2a1d05f2;border:1px solid var(--gold);box-shadow:0 10px 30px #000a;font-size:13.5px;line-height:1.4;color:#ffe9b0}
+#inapp b{color:#fff}#inapp button{flex:none;background:var(--gold);color:#2a1a00;border:0;border-radius:99px;padding:7px 12px;font-weight:800;font-size:13px}
 .toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:96;background:#0b264a;border:1px solid var(--gold);border-radius:999px;padding:10px 18px;font-weight:700;box-shadow:0 10px 30px #0009;animation:rise .3s}
 
 /* màn hình lớn (máy chiếu, 1920px…): phóng to theo chiều cao màn hình, vừa khít không cuộn */
@@ -939,6 +942,13 @@ function restoreGame(){let sv;try{sv=JSON.parse(localStorage.getItem('vcnv.save'
   buildBoard();show('scrBoard');renderBoard();S.rows.forEach((st,j)=>{if(st==='right')fillRow(j);else if(S.done)fillRow(j,true)});
   setTimeout(()=>toast('Đã khôi phục ván đang chơi · muốn chơi mới: Cài đặt → Chơi lại'),400);return true}
 restoreGame();
+/* mở trong Zalo/Facebook/Messenger: nhắc mở bằng trình duyệt (âm thanh ổn định, luôn có bản mới) */
+(function(){const ua=navigator.userAgent;const app=/Zalo/i.test(ua)?'Zalo':/FBAN|FBAV|FB_IAB|Messenger/i.test(ua)?'Facebook':null;if(!app)return;
+  try{if(sessionStorage.getItem('vcnv.inapp'))return}catch(e){}
+  const d=document.createElement('div');d.id='inapp';
+  d.innerHTML='<span>Bạn đang mở trong <b>'+app+'</b>. Để nhạc và giọng đọc chạy ổn định, bấm <b>⋯</b> (góc trên) → <b>Mở bằng trình duyệt</b>.</span><button type="button">Đã hiểu</button>';
+  d.querySelector('button').onclick=()=>{d.remove();try{sessionStorage.setItem('vcnv.inapp','1')}catch(e){}};
+  document.body.append(d)})();
 /* mọi lần chạm đều mở khóa âm thanh (iPhone) — kể cả sau khi khôi phục ván */
 document.addEventListener('pointerdown',()=>{try{audio();prime()}catch(e){}},{passive:true,capture:true});
 
@@ -963,7 +973,7 @@ document.addEventListener('pointerdown',()=>{try{audio();prime()}catch(e){}},{pa
     setTimeout(tick,120)};tick()})();
 
 /* ---------- tự cập nhật: trình duyệt (nhất là Zalo) hay giữ bản cũ -> so với version.txt trên máy chủ ---------- */
-const BUILD='20261110143856';
+const BUILD='20261110144153';
 (function(){if(!/^https?:/.test(location.protocol))return;try{
   fetch('version.txt?t='+Date.now(),{cache:'no-store'}).then(r=>r.ok?r.text():'').then(v=>{v=(v||'').trim();if(!v||v===BUILD)return;
     const key='vcnv.upd.'+v;if(sessionStorage.getItem(key))return;sessionStorage.setItem(key,'1');
