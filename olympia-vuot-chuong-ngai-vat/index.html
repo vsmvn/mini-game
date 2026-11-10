@@ -601,7 +601,7 @@ const VOICE={list:{},cur:null,token:0,
   /* chỉ liệt kê file đang có trong nhac/doc/ (tránh lỗi 404). Thêm file mới thì thêm tên vào đây. */
   files:['cau-01.mp3','cau-02.mp3','cau-03.mp3','cau-04.mp3','cau-05.mp3','cau-06.mp3','cau-07.mp3','cau-08.mp3','cau-09.mp3','cau-10.mp3','cau-11.mp3'],
   load(){this.files.forEach(f=>{const n=f.replace(/\.[a-z0-9]+$/,'');const a=new Audio();a.preload='auto';
-    a.addEventListener('canplaythrough',()=>{if(!this.list[n])this.list[n]=a},{once:true});a.src='nhac/doc/'+f})},
+    this.list[n]=a;a.addEventListener('error',()=>{if(this.list[n]===a)delete this.list[n]},{once:true});a.src='nhac/doc/'+f;try{a.load()}catch(e){}})},
   has(n){return voiceOn&&!muted&&!!this.list[n]},
   /* phát rồi gọi done() khi đọc xong (hoặc lỗi/bị bỏ qua) */
   play(n,done){this.stop();const a=this.list[n];const tk=++this.token;let fin=false;
@@ -697,9 +697,11 @@ const LOCAL_DIR='nhac/';
 const LOCAL={opening:'nhac-mo-dau.mp3',question:'mo-cau-hoi.mp3',think:'cho-thi-sinh-tra-loi.mp3',tick:'tieng-dem-giay.wav',timeup:'het-gio.wav',correct:'tra-loi-dung.wav',piece:'mo-manh-ghep.wav'};
 function loadLocal(){
   Object.keys(LOCAL).forEach(k=>{try{const a=new Audio();a.preload='auto';
-    a.addEventListener('canplaythrough',()=>{if(!custom[k])custom[k]={name:LOCAL[k]+' (nhạc gốc)',url:null,audio:a,local:true}},{once:true});
-    a.addEventListener('error',()=>{},{once:true});a.src=LOCAL_DIR+LOCAL[k]}catch(e){}})}
-dbAll().then(all=>{Object.keys(all).forEach(k=>{const v=all[k];if(v&&v.blob)setCustom(k,v.name,v.blob)})}).then(loadLocal,loadLocal);
+    if(custom[k])return;const c={name:LOCAL[k]+' (nhạc gốc)',url:null,audio:a,local:true};custom[k]=c;
+    a.addEventListener('error',()=>{if(custom[k]===c){delete custom[k];if(typeof renderSlots==='function'&&isOpen($('setBox')))renderSlots()}},{once:true});
+    a.src=LOCAL_DIR+LOCAL[k];try{a.load()}catch(e){}}catch(e){}});if(typeof updateSettingsUI==='function')try{updateSettingsUI()}catch(e){}}
+{let localDone=false;const goLocal=()=>{if(!localDone){localDone=true;loadLocal()}};setTimeout(goLocal,1500);
+  dbAll().then(all=>{Object.keys(all||{}).forEach(k=>{const v=all[k];if(v&&v.blob)setCustom(k,v.name,v.blob)})}).then(goLocal,goLocal)}
 /* mở khóa phát nhạc ngay trong lúc người dùng bấm (cần cho iPhone/Safari) */
 function prime(){['think','question','keyword','timeup','correct','wrong','piece','fanfare'].forEach(k=>{const c=custom[k];if(!c||c.primed||!c.audio.paused)return;
   const a=c.audio;a.muted=true;try{const p=a.play();if(p&&p.then)p.then(()=>{if(a.muted){a.pause();a.currentTime=0;a.muted=false}c.primed=true}).catch(()=>{a.muted=false});else{a.pause();a.muted=false}}catch(e){a.muted=false}})}
