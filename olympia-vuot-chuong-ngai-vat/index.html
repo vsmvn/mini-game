@@ -809,7 +809,7 @@ function phaseInfo(){if(S.screen==='scrIntro')return{phase:'lobby'};if(S.done)re
   if(S.screen==='scrQ'&&S.mode==='key'){const ls=letters(KEYWORD);
     return{phase:'key',reading:VOICE.reading,known:ls.map((ch,k)=>S.rows[k]==='right'?ch:''),words:KEYWORD.split(' ').map(w=>[...w].length),hint:S.center?KEY_HINT:null,remain:remain(),total:timer.total||cfg.time,closed:S.judged||PH.shown||!timeOpen()}}
   return{phase:'board',left:S.rows.filter(x=>x==='idle').length}}
-function pushState(only){if(!PH.on||!PH.conns.size)return;const info=phaseInfo();const teams=S.teams.map(t=>({name:t.name,score:t.score,out:t.out}));
+function pushState(only){saveGame();if(!PH.on||!PH.conns.size)return;const info=phaseInfo();const teams=S.teams.map(t=>({name:t.name,score:t.score,out:t.out}));
   PH.conns.forEach(c=>{if(only&&c!==only)return;const i=c.team;let you=null;
     if(i!=null&&S.teams[i]){you={team:i,out:S.teams[i].out};
       if(info.phase==='row'||info.phase==='rowResult')you.sent=PH.ans[i]?PH.ans[i].text:null;
@@ -856,6 +856,19 @@ document.addEventListener('keydown',e=>{
   else if(S.screen==='scrIntro'&&e.key==='Enter'&&e.target===document.body){startGame()}
 });
 buildBoard();updateSettingsUI();
+/* ---------- tự lưu & khôi phục ván đang chơi (lỡ tải lại trang) ---------- */
+function hasProgress(){return !!S&&S.screen!=='scrIntro'}
+function saveGame(){try{if(!hasProgress()){localStorage.removeItem('vcnv.save');return}
+  localStorage.setItem('vcnv.save',JSON.stringify({v:1,at:Date.now(),teams:S.teams,turn:S.turn,rows:S.rows,correct:S.correct,center:S.center,done:S.done}))}catch(e){}}
+function restoreGame(){let sv;try{sv=JSON.parse(localStorage.getItem('vcnv.save')||'null')}catch(e){}
+  if(!sv||sv.v!==1||!Array.isArray(sv.rows)||sv.rows.length!==QA.length||!Array.isArray(sv.teams)||!sv.teams.length)return false;
+  if(Date.now()-sv.at>12*3600e3){try{localStorage.removeItem('vcnv.save')}catch(e){}return false}
+  fresh();Object.assign(S,{teams:sv.teams.map(x=>({name:String(x.name),score:+x.score||0,out:!!x.out})),turn:Math.min(+sv.turn||0,sv.teams.length-1),rows:sv.rows,correct:+sv.correct||0,center:!!sv.center,done:!!sv.done});
+  buildBoard();show('scrBoard');renderBoard();S.rows.forEach((st,j)=>{if(st==='right')fillRow(j);else if(S.done)fillRow(j,true)});
+  setTimeout(()=>toast('Đã khôi phục ván đang chơi · muốn chơi mới: Cài đặt → Chơi lại'),400);return true}
+restoreGame();
+/* hỏi lại trước khi tải lại/đóng trang khi ván đang dở */
+window.addEventListener('beforeunload',e=>{saveGame();if(hasProgress()&&!S.done){e.preventDefault();e.returnValue=''}});
 </script>
 </body>
 </html>
