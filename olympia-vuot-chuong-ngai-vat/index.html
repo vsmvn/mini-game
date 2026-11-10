@@ -479,7 +479,7 @@ const SYN={
 };
 SYN.opening=SYN.fanfare;
 function sfx(name,arg){if(muted)return;const c=custom[name];
-  if(c){try{c.audio.muted=false;c.audio.currentTime=0;c.audio.loop=(name==='think');const p=c.audio.play();playing.add(c.audio);if(p&&p.catch){p.catch(()=>{});return p}return Promise.resolve()}catch(e){return Promise.reject(e)}}
+  if(c){try{c.audio.muted=false;c.audio.currentTime=0;c.audio.loop=(name==='think');const au=c.audio,p=au.play();playing.add(au);if(p&&p.catch){p.catch(()=>{playing.delete(au)});return p}return Promise.resolve()}catch(e){return Promise.reject(e)}}
   if(!audio())return;if(SYN[name])SYN[name](arg)}
 function stopSounds(){THINK.stop();if(typeof VOICE!=='undefined')VOICE.stop();playing.forEach(a=>{try{a.pause()}catch(e){}});playing.clear()}
 function stopOne(name){if(name==='think')THINK.stop();const c=custom[name];if(c){try{c.audio.pause()}catch(e){}playing.delete(c.audio)}}
@@ -507,7 +507,7 @@ let cfg={teams:+(store('vcnv.teams')||4),time:+(store('vcnv.time')||10)};
 let S;function fresh(){S={teams:Array.from({length:cfg.teams},(_,i)=>({name:'Tổ '+(i+1),score:0,out:false})),turn:0,rows:Array(QA.length).fill('idle'),correct:0,
   screen:'scrIntro',mode:null,cur:-1,answerer:0,judged:false,center:false,done:false,busy:false}}
 fresh();
-let timer={raf:0,end:0,last:-1,running:false,think:false};
+let timer={raf:0,end:0,last:-1,running:false,think:false,tk:0};
 let tiles=[];
 
 function show(id){if(document.activeElement&&document.activeElement.blur)document.activeElement.blur();['scrIntro','scrBoard','scrQ'].forEach(s=>$(s).hidden=s!==id);S.screen=id;window.scrollTo(0,0);pushState()}
@@ -614,13 +614,16 @@ const VOICE={list:{},cur:null,token:0,
   get reading(){return !!this.cur}};
 function resetRing(sec){stopTimer();timer.end=Infinity;const r=$('ring');r.className='ring';r.style.setProperty('--p',1);$('sec').textContent=sec}
 function startTimer(sec){VOICE.stop();stopTimer();timer.total=sec;timer.end=performance.now()+sec*1000;timer.last=sec;timer.running=true;$('sec').textContent=sec;
-  pushState();stopOne('question');timer.think=false;if(!muted){if(custom.think){timer.think=true;const p=sfx('think');if(p&&p.catch)p.catch(()=>{timer.think=THINK.start()})}else timer.think=THINK.start()}
+  pushState();stopOne('question');startThink();
   const loop=now=>{if(!timer.running)return;const left=Math.max(0,(timer.end-now)/1000);const s=Math.ceil(left);
     $('ring').style.setProperty('--p',left/timer.total);
     if(s!==timer.last){timer.last=s;$('sec').textContent=s;const u=s<=3;$('ring').classList.toggle('urgent',u&&s>0);if(s>0&&(!timer.think||u))sfx('tick',u)}
     if(left<=0){timer.running=false;stopOne('think');sfx('timeup');const r=$('ring');r.classList.remove('urgent');r.classList.add('over');$('sec').textContent='Hết giờ';pushState();return}
     timer.raf=requestAnimationFrame(loop)};timer.raf=requestAnimationFrame(loop)}
-function stopTimer(){timer.running=false;cancelAnimationFrame(timer.raf);stopOne('think')}
+function startThink(){const tk=++timer.tk;timer.think=false;if(muted||!timer.running)return;
+  if(custom.think){timer.think=true;const p=sfx('think');if(p&&p.catch)p.catch(()=>{if(timer.tk===tk&&timer.running&&!muted&&custom.think.audio.paused)timer.think=THINK.start()})}
+  else timer.think=THINK.start()}
+function stopTimer(){timer.tk++;timer.running=false;cancelAnimationFrame(timer.raf);stopOne('think')}
 
 /* ---------- chấm điểm ---------- */
 function addScore(i,p){S.teams[i].score+=p;renderQTeams();pushState();const c=$('qTeams').children[i];if(c){c.classList.add('bump')}}
@@ -827,6 +830,7 @@ function back(){if(S.screen!=='scrQ'||(S.judged&&S.mode==='row'))return;stopTime
 $('backBtn').onclick=back;
 $('resetBtn').onclick=()=>{closeDlg($('setBox'));resetAsk()};function resetAsk(){popMsg({tag:'Chơi lại',title:'Chơi lại từ đầu?',body:'Điểm số và bảng ô chữ sẽ được đặt lại.',btns:[['Chơi lại','gold',()=>{stopTimer();stopSounds();fresh();show('scrIntro');updateSettingsUI()}],['Quay lại','dark']]})}
 function setMute(m){muted=m;if(m)stopSounds();if(master)master.gain.value=m?0:.8;updateSettingsUI()}
+document.addEventListener('visibilitychange',()=>{if(document.hidden){timer.tk++;stopSounds()}else if(timer.running&&S.screen==='scrQ')startThink()});
 $('soundBtn').onclick=()=>setMute(!muted);$('voiceBtn').onclick=()=>{voiceOn=!voiceOn;store('vcnv.voice',voiceOn?'1':'0');if(!voiceOn)VOICE.stop();updateSettingsUI()};VOICE.load();
 $('fsBtn').hidden=!document.fullscreenEnabled;
 document.addEventListener('fullscreenchange',()=>updateSettingsUI());
