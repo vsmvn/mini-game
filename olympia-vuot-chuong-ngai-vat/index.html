@@ -158,7 +158,7 @@ body{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;text-r
   background:conic-gradient(var(--rc,var(--gold)) calc(var(--p)*360deg),#ffffff18 0)}
 .ring span{width:84%;height:84%;border-radius:50%;background:#0b264a;display:grid;place-items:center;font-weight:900;font-size:clamp(34px,4vw,60px);font-variant-numeric:tabular-nums}
 .ring.urgent{--rc:var(--red)}.ring.urgent span{color:var(--red);animation:pulse .5s infinite alternate}
-.ring.over span{font-size:clamp(16px,1.6vw,22px);color:var(--red)}
+.ring.over span{font-size:clamp(16px,1.6vw,22px);color:var(--red);text-align:center;line-height:1.15;padding:0 6px}
 @keyframes pulse{to{transform:scale(1.08)}}
 .whoLbl{font-size:12px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);text-align:center}
 .qSide .teams{justify-content:center;max-width:220px}
@@ -271,7 +271,11 @@ dialog[open] .pop{animation:pop .3s cubic-bezier(.2,1.4,.4,1)}
   .settings{grid-template-columns:1fr}
   .introBtns{flex-direction:column}.introBtns .btn{width:100%}
   .qCard{padding:14px}.qText{font-size:18px;line-height:1.55}.qb{border-radius:5px;border-width:1px}
-  .ring{width:78px}.ring span{font-size:30px}
+  .ring{width:72px;flex:none}.ring span{font-size:28px}.ring.over span{font-size:12.5px;letter-spacing:-.01em;padding:0 4px}.ring.reading #sec{font-size:22px}
+  .qSide{gap:12px;align-items:center;padding:10px;margin:-2px -2px 4px;border-radius:14px;background:#ffffff08;border:1px solid #ffffff14}
+  .qSide .teams{flex:1;display:grid;grid-template-columns:repeat(auto-fill,minmax(86px,1fr));gap:6px;justify-content:stretch;min-width:0}
+  .qSide .teams .chip{justify-content:space-between;width:100%;min-width:0}
+  .qBtns .btn{white-space:nowrap;font-size:15px;padding-left:10px;padding-right:10px}
   .qBtns{position:sticky;bottom:max(8px,env(safe-area-inset-bottom));z-index:5}
   .chip{font-size:13px;padding:5px 6px 5px 10px}
 }
@@ -594,10 +598,10 @@ const THINK={iv:0,bus:null,next:0,step:0,
 /* ---------- giọng đọc câu hỏi: đọc xong mới tính giờ ---------- */
 let voiceOn=store('vcnv.voice')!=='0';
 const VOICE={list:{},cur:null,token:0,
-  load(){const names=QA.map((_,j)=>'cau-'+String(j+1).padStart(2,'0')).concat('tu-khoa');
-    names.forEach(n=>{const tryExt=(exts)=>{if(!exts.length)return;const a=new Audio();a.preload='auto';
-      a.addEventListener('canplaythrough',()=>{if(!this.list[n])this.list[n]=a},{once:true});
-      a.addEventListener('error',()=>tryExt(exts.slice(1)),{once:true});a.src='nhac/doc/'+n+'.'+exts[0]};tryExt(['mp3','wav'])})},
+  /* chỉ liệt kê file đang có trong nhac/doc/ (tránh lỗi 404). Thêm file mới thì thêm tên vào đây. */
+  files:['cau-01.mp3','cau-02.mp3','cau-03.mp3','cau-04.mp3','cau-05.mp3','cau-06.mp3','cau-07.mp3','cau-08.mp3','cau-09.mp3','cau-10.mp3','cau-11.mp3'],
+  load(){this.files.forEach(f=>{const n=f.replace(/\.[a-z0-9]+$/,'');const a=new Audio();a.preload='auto';
+    a.addEventListener('canplaythrough',()=>{if(!this.list[n])this.list[n]=a},{once:true});a.src='nhac/doc/'+f})},
   has(n){return voiceOn&&!muted&&!!this.list[n]},
   /* phát rồi gọi done() khi đọc xong (hoặc lỗi/bị bỏ qua) */
   play(n,done){this.stop();const a=this.list[n];const tk=++this.token;let fin=false;
