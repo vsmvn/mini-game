@@ -172,7 +172,15 @@ body{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;text-r
 
 /* ---------- settings ---------- */
 .linkBtn{background:none;border:0;color:var(--gold2);font-weight:700;text-decoration:underline;text-underline-offset:3px;padding:4px}
-.muteDot{margin-left:4px;font-size:13px}
+.muteDot{margin-left:4px;display:inline-flex;color:var(--red)}
+.ic{width:1.2em;height:1.2em;flex:none;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.tag .ic{width:1.15em;height:1.15em}
+.ghost{display:inline-flex;align-items:center;gap:7px}.ghost>.ic{width:18px;height:18px}
+#setBtn>.ic{transition:transform .5s ease}#setBtn:hover>.ic{transform:rotate(60deg)}
+.setRow .btn{gap:10px}.setRow .btn .ic{opacity:.9}
+#soundBtn.off{color:#ffb4b4}
+details summary{display:flex!important;align-items:center;gap:10px}details summary>.ic:first-child{color:var(--gold2)}details summary .chev{margin-left:auto;transition:transform .2s;opacity:.7}details[open] summary .chev{transform:rotate(180deg)}
+.btn .ic{width:1.15em;height:1.15em}
 .setGroup{margin-top:18px}
 .setGroup>label,.setGroup>summary{display:block;font-size:12px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
 #teamsNote{margin-top:8px}
@@ -180,7 +188,7 @@ body{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;text-r
 .setRow{display:flex;gap:10px;flex-wrap:wrap}.setRow .btn{flex:1 1 180px;font-size:16px;min-height:46px;padding:10px 14px}
 details.music{border:1px solid #ffffff1f;border-radius:12px;padding:12px 14px;background:#ffffff06}
 details.music>summary{cursor:pointer;margin:0;font-size:14px;color:var(--ink);list-style:none}
-details.music>summary::after{content:' ▾';color:var(--muted)}details.music[open]>summary::after{content:' ▴'}
+details.music>summary::-webkit-details-marker{display:none}
 details.music>summary small{color:var(--green);text-transform:none;letter-spacing:0;font-weight:600}
 details.music .note{margin-top:10px}
 
@@ -266,7 +274,7 @@ dialog[open] .pop{animation:pop .3s cubic-bezier(.2,1.4,.4,1)}
 <header>
   <div class="brand"><div class="logo">O</div><div><b>OLYMPIA</b><h1>Vượt chướng ngại vật</h1></div></div>
   <div class="tools">
-    <button class="ghost" id="setBtn" aria-label="Cài đặt">⚙️<span class="lbl"> Cài đặt</span><span class="muteDot" id="muteDot" hidden>🔇</span></button>
+    <button class="ghost" id="setBtn" aria-label="Cài đặt"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg><span class="lbl">Cài đặt</span><span class="muteDot" id="muteDot" hidden><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M11 4.7a.7.7 0 0 0-1.2-.5L6.4 7.6A1.4 1.4 0 0 1 5.4 8H3a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h2.4a1.4 1.4 0 0 1 1 .4l3.4 3.4a.7.7 0 0 0 1.2-.5z"/><line x1="22" x2="16" y1="9" y2="15"/><line x1="16" x2="22" y1="9" y2="15"/></svg></span></button>
   </div>
 </header>
 
@@ -339,7 +347,7 @@ dialog[open] .pop{animation:pop .3s cubic-bezier(.2,1.4,.4,1)}
     <button class="btn gold" id="showAnsBtn" hidden>👁 Xem đáp án các tổ <kbd>Enter</kbd></button>
     <button class="btn green" id="applyBtn" hidden>✓ Chấm điểm <kbd>Enter</kbd></button>
     <button class="btn dark" id="revealBtn" hidden>📣 Công bố từ khóa</button>
-    <button class="btn dark" id="retimeBtn">↻ Tính giờ lại</button>
+    <button class="btn dark" id="retimeBtn"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>Tính giờ lại</button>
     <button class="btn dark" id="backBtn">← Về bảng <kbd>Esc</kbd></button>
   </div>
 </section>
@@ -352,7 +360,7 @@ dialog[open] .pop{animation:pop .3s cubic-bezier(.2,1.4,.4,1)}
 </div></dialog>
 
 <dialog id="qrBox"><div class="pop wide">
-  <div class="tag">📱 Trả lời bằng điện thoại</div>
+  <div class="tag"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect width="14" height="20" x="5" y="2" rx="2.5"/><path d="M12 18h.01"/></svg>Trả lời bằng điện thoại</div>
   <div class="qrWrap">
     <div class="qrImg" id="qrImg"></div>
     <div class="qrInfo">
@@ -368,24 +376,26 @@ dialog[open] .pop{animation:pop .3s cubic-bezier(.2,1.4,.4,1)}
 </div></dialog>
 
 <dialog id="setBox"><div class="pop wide">
-  <div class="tag">⚙️ Cài đặt</div>
+  <div class="tag"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>Cài đặt</div>
   <div class="setGroup"><label>Số tổ tham gia</label><div class="seg" id="segTeams"></div><p class="note" id="teamsNote" hidden>Số tổ mới được áp dụng khi chơi lại.</p></div>
   <div class="setGroup"><label>Thời gian mỗi câu</label><div class="seg" id="segTime"></div></div>
   <div class="setGroup"><label>Âm thanh &amp; màn hình</label>
-    <div class="setRow"><button class="btn dark" id="soundBtn" type="button">🔊 Âm thanh: Bật</button><button class="btn dark" id="fsBtn" type="button">⛶ Toàn màn hình</button></div></div>
+    <div class="setRow"><button class="btn dark" id="soundBtn" type="button"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M11 4.7a.7.7 0 0 0-1.2-.5L6.4 7.6A1.4 1.4 0 0 1 5.4 8H3a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h2.4a1.4 1.4 0 0 1 1 .4l3.4 3.4a.7.7 0 0 0 1.2-.5z"/><path d="M16 9a5 5 0 0 1 0 6"/><path d="M19.4 18.4a9 9 0 0 0 0-12.8"/></svg><span>Âm thanh: Bật</span></button><button class="btn dark" id="fsBtn" type="button"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3"/><path d="M21 8V5a2 2 0 0 0-2-2h-3"/><path d="M3 16v3a2 2 0 0 0 2 2h3"/><path d="M16 21h3a2 2 0 0 0 2-2v-3"/></svg><span>Toàn màn hình</span></button></div></div>
   <div class="setGroup"><label>Trả lời bằng điện thoại</label>
-    <div class="setRow"><button class="btn dark" id="phoneBtn" type="button">📱 Bật &amp; hiện mã QR</button></div>
+    <div class="setRow"><button class="btn dark" id="phoneBtn" type="button"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect width="5" height="5" x="3" y="3" rx="1"/><rect width="5" height="5" x="16" y="3" rx="1"/><rect width="5" height="5" x="3" y="16" rx="1"/><path d="M21 16h-3a2 2 0 0 0-2 2v3"/><path d="M21 21v.01"/><path d="M12 7v3a2 2 0 0 1-2 2H7"/><path d="M3 12h.01"/><path d="M12 3h.01"/><path d="M12 16v.01"/><path d="M16 12h1"/><path d="M21 12v.01"/><path d="M12 21v-1"/></svg><span>Bật &amp; hiện mã QR</span></button></div>
     <p class="note" style="margin-top:8px">Mỗi tổ quét mã QR bằng điện thoại để gửi đáp án. Máy chiếu và điện thoại đều cần có Internet.</p></div>
   <details class="setGroup music" id="musicSec">
-    <summary>🎵 Nạp nhạc <small id="musicCount"></small></summary>
+    <summary><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg><span>Nạp nhạc</span> <small id="musicCount"></small><svg class="ic chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></summary>
     <p class="note">Chọn file mp3/wav có sẵn trên máy. Nhạc chỉ được lưu <b>trong trình duyệt của máy này</b>, không tải lên mạng. Mục nào để trống sẽ dùng âm thanh tạo sẵn của game.</p>
     <div class="slots" id="slots"></div>
   </details>
   <input type="file" id="filePick" accept="audio/*,.mp3,.wav,.m4a,.ogg" hidden>
-  <div class="popBtns"><button class="btn gold" id="setClose" type="button">Xong</button><button class="btn red" id="resetBtn" type="button">↻ Chơi lại</button></div>
+  <div class="popBtns"><button class="btn gold" id="setClose" type="button">Xong</button><button class="btn red" id="resetBtn" type="button"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>Chơi lại</button></div>
 </div></dialog>
 
 <script>
+const ICON={vol:"<svg class=\"ic\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M11 4.7a.7.7 0 0 0-1.2-.5L6.4 7.6A1.4 1.4 0 0 1 5.4 8H3a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h2.4a1.4 1.4 0 0 1 1 .4l3.4 3.4a.7.7 0 0 0 1.2-.5z\"/><path d=\"M16 9a5 5 0 0 1 0 6\"/><path d=\"M19.4 18.4a9 9 0 0 0 0-12.8\"/></svg>",mute:"<svg class=\"ic\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M11 4.7a.7.7 0 0 0-1.2-.5L6.4 7.6A1.4 1.4 0 0 1 5.4 8H3a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h2.4a1.4 1.4 0 0 1 1 .4l3.4 3.4a.7.7 0 0 0 1.2-.5z\"/><line x1=\"22\" x2=\"16\" y1=\"9\" y2=\"15\"/><line x1=\"16\" x2=\"22\" y1=\"9\" y2=\"15\"/></svg>",max:"<svg class=\"ic\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M8 3H5a2 2 0 0 0-2 2v3\"/><path d=\"M21 8V5a2 2 0 0 0-2-2h-3\"/><path d=\"M3 16v3a2 2 0 0 0 2 2h3\"/><path d=\"M16 21h3a2 2 0 0 0 2-2v-3\"/></svg>",min:"<svg class=\"ic\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M8 3v3a2 2 0 0 1-2 2H3\"/><path d=\"M21 8h-3a2 2 0 0 1-2-2V3\"/><path d=\"M3 16h3a2 2 0 0 1 2 2v3\"/><path d=\"M16 21v-3a2 2 0 0 1 2-2h3\"/></svg>",qr:"<svg class=\"ic\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><rect width=\"5\" height=\"5\" x=\"3\" y=\"3\" rx=\"1\"/><rect width=\"5\" height=\"5\" x=\"16\" y=\"3\" rx=\"1\"/><rect width=\"5\" height=\"5\" x=\"3\" y=\"16\" rx=\"1\"/><path d=\"M21 16h-3a2 2 0 0 0-2 2v3\"/><path d=\"M21 21v.01\"/><path d=\"M12 7v3a2 2 0 0 1-2 2H7\"/><path d=\"M3 12h.01\"/><path d=\"M12 3h.01\"/><path d=\"M12 16v.01\"/><path d=\"M16 12h1\"/><path d=\"M21 12v.01\"/><path d=\"M12 21v-1\"/></svg>"};
+
 /* ================= DỮ LIỆU ================= */
 const QA=[
  ["Điền vào chỗ trống trong đoạn tư liệu sau: \"Thắng lợi của Cách mạng tháng Tám đã đánh dấu bước phát triển nhảy vọt của cách mạng Việt Nam, mở đầu kỉ nguyên mới của dân tộc: Kỉ nguyên....., tự do và phát triển dưới chế độ dân chủ cộng hòa\".","ĐỘC LẬP"],
@@ -426,10 +436,10 @@ function tone(f,t,d,o){o=o||{};const c=ac,os=c.createOscillator(),g=c.createGain
   if(o.to)os.frequency.exponentialRampToValueAtTime(o.to,t+d);if(o.detune)os.detune.value=o.detune;const v=o.vol!=null?o.vol:.2,a=o.attack!=null?o.attack:.008,r=o.release!=null?o.release:.08;
   g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(v,t+a);g.gain.setValueAtTime(v,t+Math.max(a,d-r));g.gain.exponentialRampToValueAtTime(.0001,t+d);
   let out=g;if(o.lp){const f2=c.createBiquadFilter();f2.type='lowpass';f2.frequency.value=o.lp;g.connect(f2);out=f2}
-  os.connect(g);out.connect(master);os.start(t);os.stop(t+d+.05)}
+  os.connect(g);out.connect(o.dest||master);os.start(t);os.stop(t+d+.05)}
 let noiseBuf;function noise(t,d,o){o=o||{};const c=ac;if(!noiseBuf){noiseBuf=c.createBuffer(1,c.sampleRate,c.sampleRate);const x=noiseBuf.getChannelData(0);for(let i=0;i<x.length;i++)x[i]=Math.random()*2-1}
   const s=c.createBufferSource();s.buffer=noiseBuf;const f=c.createBiquadFilter();f.type=o.type||'bandpass';f.frequency.setValueAtTime(o.f||1800,t);if(o.to)f.frequency.exponentialRampToValueAtTime(o.to,t+d);f.Q.value=o.q||1;
-  const g=c.createGain();const v=o.vol!=null?o.vol:.3;g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.0001,t+d);s.connect(f);f.connect(g);g.connect(master);s.start(t);s.stop(t+d+.02)}
+  const g=c.createGain();const v=o.vol!=null?o.vol:.3;g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.0001,t+d);s.connect(f);f.connect(g);g.connect(o.dest||master);s.start(t);s.stop(t+d+.02)}
 const timp=(t,f,v)=>{f=f||82;v=v||.55;tone(f,t,.6,{vol:v,to:f*.7,release:.5});noise(t,.18,{type:'lowpass',f:500,vol:.35})};
 const snare=(t,v)=>noise(t,.09,{f:2200,q:.8,vol:v||.18});
 function brass(f,t,d,v){v=v||.09;[-7,0,7].forEach(dt=>tone(f,t,d,{type:'sawtooth',vol:v,detune:dt,attack:.04,release:.25,lp:2400}))}
@@ -454,8 +464,8 @@ SYN.opening=SYN.fanfare;
 function sfx(name,arg){if(muted)return;const c=custom[name];
   if(c){try{c.audio.muted=false;c.audio.currentTime=0;c.audio.loop=(name==='think');const p=c.audio.play();playing.add(c.audio);if(p&&p.catch){p.catch(()=>{});return p}return Promise.resolve()}catch(e){return Promise.reject(e)}}
   if(!audio())return;if(SYN[name])SYN[name](arg)}
-function stopSounds(){playing.forEach(a=>{try{a.pause()}catch(e){}});playing.clear()}
-function stopOne(name){const c=custom[name];if(c){try{c.audio.pause()}catch(e){}playing.delete(c.audio)}}
+function stopSounds(){THINK.stop();playing.forEach(a=>{try{a.pause()}catch(e){}});playing.clear()}
+function stopOne(name){if(name==='think')THINK.stop();const c=custom[name];if(c){try{c.audio.pause()}catch(e){}playing.delete(c.audio)}}
 
 /* lưu nhạc trong IndexedDB của trình duyệt */
 function idb(){return new Promise((res,rej)=>{try{const r=indexedDB.open('olympia-vcnv',1);r.onupgradeneeded=()=>r.result.createObjectStore('sounds');r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)}catch(e){rej(e)}})}
@@ -514,7 +524,7 @@ function renderBoard(){
   teamChips($('boardTeams'),{sel:S.turn,pick:i=>{S.turn=i;renderBoard()}});
   const left=S.rows.filter(x=>x==='idle').length;
   const st=$('status');st.replaceChildren();
-  if(S.done){st.append('Đã tìm ra từ khóa ',el('em',null,KEYWORD),'. Vào ⚙️ Cài đặt → Chơi lại để chơi lần nữa.')}
+  if(S.done){st.append('Đã tìm ra từ khóa ',el('em',null,KEYWORD),'. Vào Cài đặt → Chơi lại để chơi lần nữa.')}
   else if(!left){st.append('Đã hết hàng ngang. Mời các tổ ',el('em',null,'đoán từ khóa'),'!')}
   else st.append('Lượt của ',el('em',null,S.teams[S.turn].name),' · chọn một hàng ngang (còn '+left+' hàng).');
   $('randBtn').disabled=!left||S.done||S.busy;$('keyBtn').disabled=S.done||S.busy;
@@ -552,9 +562,23 @@ function openKeyword(){if(S.done)return;stopSounds();audio();prime();S.mode='key
   sfx('keyword');setTimeout(()=>{if(S.screen==='scrQ'&&S.mode==='key'&&!S.judged){stopOne('keyword');startTimer(Math.max(15,cfg.time))}},custom.keyword?Math.min(4,custom.keyword.audio.duration||2)*1000:2200)}
 
 /* ---------- đồng hồ ---------- */
+const THINK={iv:0,bus:null,next:0,step:0,
+  start(){if(muted||!audio())return false;this.stop();const b=ac.createGain();b.gain.value=.0001;b.connect(master);b.gain.exponentialRampToValueAtTime(1,ac.currentTime+.4);
+    this.bus=b;this.step=0;this.next=ac.currentTime+.06;this.pump();this.iv=setInterval(()=>this.pump(),40);return true},
+  stop(){clearInterval(this.iv);this.iv=0;const b=this.bus;this.bus=null;if(b&&ac){const t=ac.currentTime;try{b.gain.cancelScheduledValues(t);b.gain.setValueAtTime(b.gain.value,t);b.gain.linearRampToValueAtTime(0,t+.25)}catch(e){}setTimeout(()=>{try{b.disconnect()}catch(e){}},600)}},
+  pump(){if(!this.bus)return;const e=60/128/2;while(this.next<ac.currentTime+.18){this.note(this.step,this.next,e);this.next+=e;this.step++}},
+  note(i,t,e){const m=n=>440*Math.pow(2,(n-69)/12),d=this.bus,bar=Math.floor(i/8)%4,k=i%8,cyc=Math.floor(i/32);
+    const root=[45,41,43,40][bar],ch=[[57,60,64],[57,60,65],[59,62,67],[59,64,68]][bar];
+    tone(m(root+(k%2?12:0)),t,e*.9,{type:'sawtooth',vol:.06,lp:520,dest:d});                       // bass móc liên tục
+    if(k%2===0)tone(120,t,.14,{vol:.2,to:42,release:.1,dest:d});                                  // trống đáy
+    else noise(t,.035,{type:'highpass',f:7500,vol:.05,dest:d});                                   // hi-hat
+    if(k===4)noise(t,.08,{f:1900,q:.7,vol:.07,dest:d});                                            // snare nhẹ
+    if(k===0)ch.forEach(n=>tone(m(n),t,e*7.6,{type:'triangle',vol:.022,attack:.3,release:.6,dest:d}));// nền hợp âm
+    if(cyc>0){const arp=[0,1,2,1,0,2,1,2][k];tone(m(ch[arp]+12),t,e*.7,{type:'square',vol:.018,lp:2600,dest:d})} // arpeggio từ vòng 2
+    if(bar===3&&k>=6)noise(t,.06,{f:2400,q:.8,vol:.05+.03*(k-6),dest:d})}};
 function resetRing(sec){stopTimer();timer.end=Infinity;const r=$('ring');r.className='ring';r.style.setProperty('--p',1);$('sec').textContent=sec}
 function startTimer(sec){stopTimer();timer.total=sec;timer.end=performance.now()+sec*1000;timer.last=sec;timer.running=true;$('sec').textContent=sec;
-  pushState();timer.think=false;if(custom.think&&!muted){timer.think=true;const p=sfx('think');if(p&&p.catch)p.catch(()=>{timer.think=false})}
+  pushState();timer.think=false;if(!muted){if(custom.think){timer.think=true;const p=sfx('think');if(p&&p.catch)p.catch(()=>{timer.think=THINK.start()})}else timer.think=THINK.start()}
   const loop=now=>{if(!timer.running)return;const left=Math.max(0,(timer.end-now)/1000);const s=Math.ceil(left);
     $('ring').style.setProperty('--p',left/timer.total);
     if(s!==timer.last){timer.last=s;$('sec').textContent=s;const u=s<=3;$('ring').classList.toggle('urgent',u&&s>0);if(s>0&&(!timer.think||u))sfx('tick',u)}
@@ -590,7 +614,7 @@ function finalReveal(winner){S.judged=true;stopTimer();stopSounds();S.done=true;
     setTimeout(()=>{confetti();popMsg({tag:'Từ khóa hàng dọc',title:KEYWORD,body:(winner!=null?S.teams[winner].name+' đoán đúng từ khóa · +'+PTS_KEY+' điểm. ':'')+KEY_NOTE,btns:[['🏆 Xem bảng điểm','gold',showRank],['Đóng','dark']]})},1500)},S.screen==='scrQ'?1600:0)}
 function showRank(){const sorted=S.teams.map((t,i)=>({...t,i})).sort((a,b)=>b.score-a.score);const ol=el('ol','rank');
   sorted.forEach((t,k)=>{const li=el('li');li.append(el('i',null,(k+1)+'.'),document.createTextNode(t.name),el('b',null,t.score));ol.append(li)});
-  setTimeout(()=>popMsg({tag:'Kết quả',title:'Bảng điểm',node:ol,btns:[['↻ Chơi lại','gold',()=>{fresh();show('scrIntro')}],['Đóng','dark']]}),50)}
+  setTimeout(()=>popMsg({tag:'Kết quả',title:'Bảng điểm',node:ol,btns:[['Chơi lại','gold',()=>{fresh();show('scrIntro')}],['Đóng','dark']]}),50)}
 
 /* ---------- popup ---------- */
 function popMsg({tag,title,body,node,letter,btns}){const d=$('popBox');$('popTag').textContent=tag||'';$('popTitle').textContent=title||'';
@@ -605,8 +629,8 @@ function confetti(){if(matchMedia('(prefers-reduced-motion: reduce)').matches)re
 let pickSlot=null;
 function updateSettingsUI(){const n=SLOTS.filter(([k])=>custom[k]).length;$('musicCount').textContent=n?'· '+n+'/'+SLOTS.length+' mục đã có nhạc':'';
   $('teamsNote').hidden=S.screen==='scrIntro';
-  $('soundBtn').textContent=muted?'🔇 Âm thanh: Tắt':'🔊 Âm thanh: Bật';$('muteDot').hidden=!muted;
-  $('fsBtn').textContent=document.fullscreenElement?'⛶ Thoát toàn màn hình':'⛶ Toàn màn hình'}
+  $('soundBtn').innerHTML=muted?ICON.mute+'<span>Âm thanh: Tắt</span>':ICON.vol+'<span>Âm thanh: Bật</span>';$('soundBtn').classList.toggle('off',muted);$('muteDot').hidden=!muted;
+  $('fsBtn').innerHTML=document.fullscreenElement?ICON.min+'<span>Thoát toàn màn hình</span>':ICON.max+'<span>Toàn màn hình</span>'}
 function openSettings(){audio();renderSlots();updateSettingsUI();openDlg($('setBox'))}
 function renderSlots(){$('slots').replaceChildren(...SLOTS.map(([k,label,when])=>{const r=el('div','slot');const c=custom[k];
   r.append(el('strong',null,label),el('small',c?'has':null,c?'✓ '+c.name:when+' · âm thanh tạo sẵn'));
@@ -687,7 +711,7 @@ function renderQR(){if(!PH.id)return;$('qrCode').textContent=roomCode();$('qrUrl
 function renderConnList(){$('connList').replaceChildren(...S.teams.map((t,i)=>{const on=teamConnected(i);const li=el('li',on?'on':'');li.append(el('span',null,t.name),el('b',null,on?'✓ đã kết nối':'chưa kết nối'));return li}))}
 function showQR(){renderQR();renderConnList();openDlg($('qrBox'))}
 function refreshPhoneUI(){const b=$('phoneInfo');b.hidden=!PH.on;if(PH.on)b.textContent='📱 '+connectedCount()+'/'+S.teams.length+' tổ đã kết nối · Hiện mã QR';
-  $('phoneBtn').textContent=PH.on?'📱 Hiện mã QR':'📱 Bật & hiện mã QR';
+  $('phoneBtn').innerHTML=ICON.qr+(PH.on?'<span>Hiện mã QR</span>':'<span>Bật &amp; hiện mã QR</span>');
   if(isOpen($('qrBox')))renderConnList();if(S.screen==='scrQ'){setJudgeBtns();renderAns()}}
 /* so sánh đáp án: bỏ dấu cách/ký tự lạ; "near" = đúng nhưng sai/thiếu dấu */
 function norm(x){return String(x||'').normalize('NFC').toUpperCase().replace(/[^0-9A-Z\u00C0-\u1EF9]/g,'')}
@@ -754,7 +778,7 @@ $('retimeBtn').onclick=()=>{if(!S.judged)startTimer(S.mode==='key'?Math.max(15,c
 $('hintBtn').onclick=()=>{S.center=true;$('qHint').hidden=false;$('hintBtn').hidden=true;sfx('piece');pushState()};
 function back(){if(S.screen!=='scrQ'||(S.judged&&S.mode==='row'))return;stopTimer();stopSounds();show('scrBoard');renderBoard()}
 $('backBtn').onclick=back;
-$('resetBtn').onclick=()=>{closeDlg($('setBox'));resetAsk()};function resetAsk(){popMsg({tag:'Chơi lại',title:'Chơi lại từ đầu?',body:'Điểm số và bảng ô chữ sẽ được đặt lại.',btns:[['↻ Chơi lại','gold',()=>{stopTimer();stopSounds();fresh();show('scrIntro');updateSettingsUI()}],['Quay lại','dark']]})}
+$('resetBtn').onclick=()=>{closeDlg($('setBox'));resetAsk()};function resetAsk(){popMsg({tag:'Chơi lại',title:'Chơi lại từ đầu?',body:'Điểm số và bảng ô chữ sẽ được đặt lại.',btns:[['Chơi lại','gold',()=>{stopTimer();stopSounds();fresh();show('scrIntro');updateSettingsUI()}],['Quay lại','dark']]})}
 function setMute(m){muted=m;if(m)stopSounds();if(master)master.gain.value=m?0:.8;updateSettingsUI()}
 $('soundBtn').onclick=()=>setMute(!muted);
 $('fsBtn').hidden=!document.fullscreenEnabled;
