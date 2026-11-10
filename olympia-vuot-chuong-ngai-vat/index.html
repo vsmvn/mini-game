@@ -479,7 +479,7 @@ const SYN={
 };
 SYN.opening=SYN.fanfare;
 function sfx(name,arg){if(muted)return;const c=custom[name];
-  if(c){try{c.audio.muted=false;c.audio.currentTime=0;c.audio.loop=(name==='think');const au=c.audio,p=au.play();playing.add(au);if(p&&p.catch){p.catch(()=>{playing.delete(au)});return p}return Promise.resolve()}catch(e){return Promise.reject(e)}}
+  if(c){try{c.audio.muted=false;c.audio.currentTime=0;c.audio.loop=(name==='think');const au=c.audio,p=au.play();playing.add(au);if(p&&p.catch){p.catch(e=>{playing.delete(au);if(e&&e.name==='NotAllowedError'&&name!=='think'&&!muted&&SYN[name]&&audio())SYN[name](arg)});return p}return Promise.resolve()}catch(e){return Promise.reject(e)}}
   if(!audio())return;if(SYN[name])SYN[name](arg)}
 function stopSounds(){THINK.stop();if(typeof VOICE!=='undefined')VOICE.stop();playing.forEach(a=>{try{a.pause()}catch(e){}});playing.clear()}
 function stopOne(name){if(name==='think')THINK.stop();const c=custom[name];if(c){try{c.audio.pause()}catch(e){}playing.delete(c.audio)}}
@@ -871,6 +871,13 @@ function restoreGame(){let sv;try{sv=JSON.parse(localStorage.getItem('vcnv.save'
   buildBoard();show('scrBoard');renderBoard();S.rows.forEach((st,j)=>{if(st==='right')fillRow(j);else if(S.done)fillRow(j,true)});
   setTimeout(()=>toast('Đã khôi phục ván đang chơi · muốn chơi mới: Cài đặt → Chơi lại'),400);return true}
 restoreGame();
+
+/* ---------- tự cập nhật: trình duyệt (nhất là Zalo) hay giữ bản cũ -> so với version.txt trên máy chủ ---------- */
+const BUILD='20261110140046';
+(function(){if(!/^https?:/.test(location.protocol))return;try{
+  fetch('version.txt?t='+Date.now(),{cache:'no-store'}).then(r=>r.ok?r.text():'').then(v=>{v=(v||'').trim();if(!v||v===BUILD)return;
+    const key='vcnv.upd.'+v;if(sessionStorage.getItem(key))return;sessionStorage.setItem(key,'1');
+    const u=new URL(location.href);u.searchParams.set('v',v);location.replace(u.href)}).catch(()=>{})}catch(e){}})();
 /* hỏi lại trước khi tải lại/đóng trang khi ván đang dở */
 window.addEventListener('beforeunload',e=>{saveGame();if(hasProgress()&&!S.done){e.preventDefault();e.returnValue=''}});
 </script>

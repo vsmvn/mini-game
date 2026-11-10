@@ -281,6 +281,13 @@ $('qForm').addEventListener('submit',e=>{e.preventDefault();const v=$('qInput').
 $('buzzBtn').onclick=()=>{if(sendMsg({t:'buzz'})){$('buzzBtn').disabled=true;toast('🔔 Đã báo người dẫn');vibrate(50);setTimeout(()=>{if(!(last&&last.you&&last.you.out))$('buzzBtn').disabled=false},8000)}};
 $('me').onclick=()=>{if(confirm('Đổi sang tổ khác?')){store(TEAM_KEY,null);myTeam=null;renderPick()}};
 start();
+/* ---------- tự cập nhật: trình duyệt (nhất là Zalo) hay giữ bản cũ -> so với version.txt trên máy chủ ---------- */
+const BUILD='20261110140046';
+(function(){if(!/^https?:/.test(location.protocol))return;try{
+  fetch('version.txt?t='+Date.now(),{cache:'no-store'}).then(r=>r.ok?r.text():'').then(v=>{v=(v||'').trim();if(!v||v===BUILD)return;
+    const key='vcnv.upd.'+v;if(sessionStorage.getItem(key))return;sessionStorage.setItem(key,'1');
+    const u=new URL(location.href);u.searchParams.set('v',v);location.replace(u.href)}).catch(()=>{})}catch(e){}})();
+
 </script>
 </body>
 </html>
