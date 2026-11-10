@@ -627,33 +627,56 @@ function prime(){['think','question','keyword','timeup','correct','wrong','piece
   const a=c.audio;a.muted=true;try{const p=a.play();if(p&&p.then)p.then(()=>{if(a.muted){a.pause();a.currentTime=0;a.muted=false}c.primed=true}).catch(()=>{a.muted=false});else{a.pause();a.muted=false}}catch(e){a.muted=false}})}
 
 /* ================= TRẢ LỜI BẰNG ĐIỆN THOẠI (PeerJS · WebRTC) =================
-   Máy chiếu là "chủ phòng"; điện thoại mở trang tra-loi.html?h=<mã phòng> và kết nối trực tiếp.
-   Không cần máy chủ riêng, chỉ dùng máy chủ trung gian miễn phí của PeerJS để bắt tay kết nối. */
-const PEER_SRC='https://cdnjs.cloudflare.com/ajax/libs/peerjs/1.5.4/peerjs.min.js';
+   Máy chiếu là "chủ phòng"; điện thoại mở trang tra-loi.html?h=<mã phòng>.
+   Tin nhắn chuyển tiếp qua các máy chủ MQTT công cộng (WebSocket) nên chạy được cả khi điện thoại dùng 4G, khác mạng với máy chiếu. */
+// MQTT 3.1.1 tối giản qua WebSocket (QoS 0) — dùng chung cho trình duyệt & node test
+function MQ(url,cid,onMsg,onState){
+  const enc=new TextEncoder(),dec=new TextDecoder();let ws,ping,subs=[],alive=false,closed=false,tmr;
+  const str=s=>{const b=enc.encode(s);return [b.length>>8,b.length&255,...b]};
+  const len=n=>{const o=[];do{let d=n%128;n=Math.floor(n/128);if(n>0)d|=128;o.push(d)}while(n>0);return o};
+  const pkt=(h,body)=>new Uint8Array([h,...len(body.length),...body]);
+  function raw(p){try{if(ws&&ws.readyState===1){ws.send(p);return true}}catch(e){}return false}
+  function open(){if(closed)return;ws=new WebSocket(url,'mqtt');ws.binaryType='arraybuffer';
+    ws.onopen=()=>raw(pkt(0x10,[...str('MQTT'),4,2,0,60,...str(cid)]));
+    let buf=new Uint8Array(0);
+    ws.onmessage=e=>{const d=new Uint8Array(e.data);const nb=new Uint8Array(buf.length+d.length);nb.set(buf);nb.set(d,buf.length);buf=nb;
+      while(buf.length>=2){let m=1,v=0,i=1,b;do{if(i>=buf.length)return;b=buf[i++];v+=(b&127)*m;m*=128}while(b&128);if(buf.length<i+v)return;
+        const t=buf[0]>>4,body=buf.subarray(i,i+v);buf=buf.slice(i+v);
+        if(t===2){alive=true;subs.forEach(sendSub);clearInterval(ping);ping=setInterval(()=>raw(new Uint8Array([0xC0,0])),25000);onState&&onState(true)}
+        else if(t===3){const tl=(body[0]<<8)|body[1];const topic=dec.decode(body.subarray(2,2+tl));onMsg&&onMsg(topic,dec.decode(body.subarray(2+tl)))}}};
+    ws.onclose=()=>{const was=alive;alive=false;clearInterval(ping);if(was&&onState)onState(false);if(!closed){clearTimeout(tmr);tmr=setTimeout(open,2000)}};
+    ws.onerror=()=>{try{ws.close()}catch(e){}}}
+  let mid=1;function sendSub(t){raw(pkt(0x82,[mid>>8&255,mid++&255,...str(t),0]))}
+  open();
+  return{get alive(){return alive},sub(t){subs.push(t);if(alive)sendSub(t)},
+    pub(t,s){if(!alive)return false;return raw(pkt(0x30,[...str(t),...enc.encode(s)]))},
+    close(){closed=true;clearInterval(ping);try{raw(new Uint8Array([0xE0,0]));ws.close()}catch(e){}}}}
+const BROKERS=['wss://broker.emqx.io:8084/mqtt','wss://broker.hivemq.com:8884/mqtt','wss://test.mosquitto.org:8081/mqtt'];const TOPIC='vsm-vcnv/';
 const QR_SRC='https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js';
 const PLAYER_URL=/github\.io$/.test(location.hostname)?new URL('tra-loi.html',location.href.split('?')[0]).href:'https://vsmvn.github.io/mini-game/olympia-vuot-chuong-ngai-vat/tra-loi.html';
-const PH={on:false,peer:null,id:null,conns:new Set(),ans:{},kw:[],shown:false,marks:{},winners:[]};
+const PH={on:false,mq:[],sweep:0,id:null,conns:new Map(),ans:{},kw:[],shown:false,marks:{},winners:[]};
 function loadScript(src){return new Promise((res,rej)=>{if(document.querySelector('script[src="'+src+'"]'))return res();const sc=document.createElement('script');sc.src=src;sc.onload=res;sc.onerror=rej;document.head.append(sc)})}
 function newId(){return 'vcnv-'+Math.random().toString(36).slice(2,8)}
 function roomCode(){return PH.id?PH.id.slice(5).toUpperCase():''}
 function joinUrl(){return PLAYER_URL+'?h='+encodeURIComponent(PH.id)}
 async function phoneOn(showDlg){closeDlg($('setBox'));
-  if(!PH.on){try{await Promise.all([loadScript(PEER_SRC),loadScript(QR_SRC)])}catch(e){toast('Không tải được thư viện kết nối. Kiểm tra Internet.');return}
+  if(!PH.on){try{await loadScript(QR_SRC)}catch(e){toast('Không tải được thư viện mã QR. Kiểm tra Internet.');return}
     PH.on=true;store('vcnv.phone','1');startPeer(store('vcnv.hostId')||newId())}
   if(showDlg!==false)showQR();refreshPhoneUI()}
-function phoneOff(){PH.on=false;store('vcnv.phone','0');PH.conns.forEach(c=>{try{c.close()}catch(e){}});PH.conns.clear();
-  if(PH.peer){try{PH.peer.destroy()}catch(e){}}PH.peer=null;closeDlg($('qrBox'));refreshPhoneUI()}
+function stopMq(){PH.mq.forEach(m=>m.close());PH.mq=[];clearInterval(PH.sweep)}
+function phoneOff(){PH.on=false;store('vcnv.phone','0');stopMq();PH.conns.clear();closeDlg($('qrBox'));refreshPhoneUI()}
 function setPeerStatus(t){$('peerStatus').textContent=t}
-function startPeer(id){PH.id=id;store('vcnv.hostId',id);setPeerStatus('Đang kết nối…');renderQR();
-  const p=new Peer(id,{debug:0});PH.peer=p;
-  p.on('open',()=>{setPeerStatus('✓ Sẵn sàng nhận kết nối');renderQR()});
-  p.on('connection',c=>{c.on('open',()=>{PH.conns.add(c);send(c,{t:'hello',teams:S.teams.map(t=>t.name)});pushState()});
-    c.on('data',d=>onPhone(c,d));c.on('close',()=>{PH.conns.delete(c);refreshPhoneUI()});c.on('error',()=>{})});
-  p.on('error',e=>{if(PH.peer!==p)return;if(e.type==='unavailable-id'){try{p.destroy()}catch(x){}startPeer(newId())}
-    else if(e.type!=='peer-unavailable')setPeerStatus('Lỗi kết nối ('+e.type+'). Kiểm tra Internet.')});
-  p.on('disconnected',()=>{if(!PH.on||PH.peer!==p)return;setPeerStatus('Mất kết nối, đang thử lại…');setTimeout(()=>{try{if(PH.peer===p&&!p.destroyed)p.reconnect()}catch(e){}},2000)})}
-function send(c,m){try{if(c.open)c.send(m)}catch(e){}}
-function teamConnected(i){for(const c of PH.conns)if(c.team===i)return true;return false}
+function brokerStatus(){const n=PH.mq.filter(m=>m.alive).length;setPeerStatus(n?'✓ Sẵn sàng nhận kết nối':'Đang kết nối máy chủ… (kiểm tra Internet)')}
+function startPeer(id){stopMq();PH.id=id;store('vcnv.hostId',id);renderQR();
+  PH.mq=BROKERS.map((u,b)=>{const m=MQ(u,id+'-h'+b+Math.random().toString(36).slice(2,5),(tp,raw)=>{let d;try{d=JSON.parse(raw)}catch(e){return}onWire(b,d)},brokerStatus);m.sub(TOPIC+id+'/p');return m});
+  brokerStatus();PH.sweep=setInterval(sweep,5000)}
+function onWire(b,d){if(!PH.on||!d||typeof d!=='object')return;const cid=String(d.c||'').slice(0,40);if(!cid)return;
+  let c=PH.conns.get(cid);const isNew=!c;if(isNew){c={cid,b,team:null,last:0};PH.conns.set(cid,c)}c.b=b;c.last=Date.now();
+  if(d.t==='hi'){if(isNew||d.n){send(c,{t:'hello',teams:S.teams.map(t=>t.name)});pushState(c)}else send(c,{t:'pong'});if(isNew)refreshPhoneUI();return}
+  onPhone(c,d)}
+function sweep(){let ch=false;const now=Date.now();PH.conns.forEach((c,k)=>{if(now-c.last>30000){PH.conns.delete(k);ch=true}});if(ch)refreshPhoneUI()}
+function send(c,m){const q=PH.mq[c.b];if(q&&q.alive)q.pub(TOPIC+PH.id+'/c/'+c.cid,JSON.stringify(m))}
+function teamConnected(i){for(const c of PH.conns.values())if(c.team===i)return true;return false}
 function connectedCount(){return S.teams.filter((_,i)=>teamConnected(i)).length}
 function renderQR(){if(!PH.id)return;$('qrCode').textContent=roomCode();$('qrUrl').textContent=joinUrl();
   if(typeof qrcode==='undefined')return;const q=qrcode(0,'M');q.addData(joinUrl());q.make();$('qrImg').innerHTML=q.createSvgTag({cellSize:8,margin:2,scalable:true})}
@@ -706,8 +729,8 @@ function phaseInfo(){if(S.screen==='scrIntro')return{phase:'lobby'};if(S.done)re
   if(S.screen==='scrQ'&&S.mode==='key'){const ls=letters(KEYWORD);
     return{phase:'key',known:ls.map((ch,k)=>S.rows[k]==='right'?ch:''),words:KEYWORD.split(' ').map(w=>[...w].length),hint:S.center?KEY_HINT:null,remain:remain(),total:timer.total||cfg.time,closed:S.judged||PH.shown||!timeOpen()}}
   return{phase:'board',left:S.rows.filter(x=>x==='idle').length}}
-function pushState(){if(!PH.on||!PH.conns.size)return;const info=phaseInfo();const teams=S.teams.map(t=>({name:t.name,score:t.score,out:t.out}));
-  PH.conns.forEach(c=>{const i=c.team;let you=null;
+function pushState(only){if(!PH.on||!PH.conns.size)return;const info=phaseInfo();const teams=S.teams.map(t=>({name:t.name,score:t.score,out:t.out}));
+  PH.conns.forEach(c=>{if(only&&c!==only)return;const i=c.team;let you=null;
     if(i!=null&&S.teams[i]){you={team:i,out:S.teams[i].out};
       if(info.phase==='row'||info.phase==='rowResult')you.sent=PH.ans[i]?PH.ans[i].text:null;
       if(info.phase==='rowResult')you.right=PH.winners.includes(i);
