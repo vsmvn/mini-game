@@ -282,7 +282,7 @@ $('buzzBtn').onclick=()=>{if(sendMsg({t:'buzz'})){$('buzzBtn').disabled=true;toa
 $('me').onclick=()=>{if(confirm('Đổi sang tổ khác?')){store(TEAM_KEY,null);myTeam=null;renderPick()}};
 start();
 /* ---------- tự cập nhật: trình duyệt (nhất là Zalo) hay giữ bản cũ -> so với version.txt trên máy chủ ---------- */
-const BUILD='20261110140454';
+const BUILD='20261110141837';
 (function(){if(!/^https?:/.test(location.protocol))return;try{
   fetch('version.txt?t='+Date.now(),{cache:'no-store'}).then(r=>r.ok?r.text():'').then(v=>{v=(v||'').trim();if(!v||v===BUILD)return;
     const key='vcnv.upd.'+v;if(sessionStorage.getItem(key))return;sessionStorage.setItem(key,'1');
