@@ -390,7 +390,7 @@ const SYN={
 };
 SYN.opening=SYN.fanfare;
 function sfx(name,arg){if(muted)return;const c=custom[name];
-  if(c){try{c.audio.currentTime=0;c.audio.loop=(name==='think');const p=c.audio.play();if(p&&p.catch)p.catch(()=>{});playing.add(c.audio)}catch(e){}return}
+  if(c){try{c.audio.muted=false;c.audio.currentTime=0;c.audio.loop=(name==='think');const p=c.audio.play();playing.add(c.audio);if(p&&p.catch){p.catch(()=>{});return p}return Promise.resolve()}catch(e){return Promise.reject(e)}}
   if(!audio())return;if(SYN[name])SYN[name](arg)}
 function stopSounds(){playing.forEach(a=>{try{a.pause()}catch(e){}});playing.clear()}
 function stopOne(name){const c=custom[name];if(c){try{c.audio.pause()}catch(e){}playing.delete(c.audio)}}
@@ -400,7 +400,7 @@ function idb(){return new Promise((res,rej)=>{try{const r=indexedDB.open('olympi
 async function dbPut(k,v){try{const db=await idb();await new Promise((res,rej)=>{const tx=db.transaction('sounds','readwrite');const st=tx.objectStore('sounds');v==null?st.delete(k):st.put(v,k);tx.oncomplete=res;tx.onerror=()=>rej(tx.error)})}catch(e){}}
 async function dbAll(){try{const db=await idb();return await new Promise(res=>{const out={};const rq=db.transaction('sounds').objectStore('sounds').openCursor();rq.onsuccess=()=>{const c=rq.result;if(c){out[c.key]=c.value;c.continue()}else res(out)};rq.onerror=()=>res(out)})}catch(e){return{}}}
 function setCustom(slot,name,blob){clearCustom(slot);const url=URL.createObjectURL(blob);const a=new Audio(url);a.preload='auto';custom[slot]={name,url,audio:a}}
-function clearCustom(slot){const c=custom[slot];if(c){try{c.audio.pause()}catch(e){}URL.revokeObjectURL(c.url);delete custom[slot]}}
+function clearCustom(slot){const c=custom[slot];if(c){try{c.audio.pause()}catch(e){}if(c.url)URL.revokeObjectURL(c.url);delete custom[slot]}}
 
 /* ================= TIỆN ÍCH ================= */
 const $=id=>document.getElementById(id);
@@ -418,7 +418,7 @@ let cfg={teams:+(store('vcnv.teams')||4),time:+(store('vcnv.time')||10)};
 let S;function fresh(){S={teams:Array.from({length:cfg.teams},(_,i)=>({name:'Tổ '+(i+1),score:0,out:false})),turn:0,rows:Array(QA.length).fill('idle'),correct:0,
   screen:'intro',mode:null,cur:-1,answerer:0,judged:false,center:false,done:false,busy:false}}
 fresh();
-let timer={raf:0,end:0,last:-1,running:false};
+let timer={raf:0,end:0,last:-1,running:false,think:false};
 let tiles=[];
 
 function show(id){if(document.activeElement&&document.activeElement.blur)document.activeElement.blur();['scrIntro','scrBoard','scrQ'].forEach(s=>$(s).hidden=s!==id);S.screen=id;window.scrollTo(0,0)}
@@ -458,9 +458,9 @@ function renderBoard(){
   $('randBtn').disabled=!left||S.done||S.busy;$('keyBtn').disabled=S.done||S.busy;
   $('keyBtn').classList.toggle('pulse',!S.done&&(S.correct>=4||!left));
 }
-function pickRow(j){if(S.busy||S.done||S.rows[j]!=='idle')return;audio();openQuestion(j)}
+function pickRow(j){if(S.busy||S.done||S.rows[j]!=='idle')return;audio();prime();openQuestion(j)}
 function spin(){if(S.busy||S.done)return;const idle=S.rows.map((s,j)=>s==='idle'?j:-1).filter(j=>j>=0);if(!idle.length)return;
-  audio();S.busy=true;renderBoard();const target=idle[Math.random()*idle.length|0];const steps=14+(Math.random()*6|0);let i=0,prev=-1;
+  audio();prime();S.busy=true;renderBoard();const target=idle[Math.random()*idle.length|0];const steps=14+(Math.random()*6|0);let i=0,prev=-1;
   const go=()=>{if(prev>=0)rowEl(prev).classList.remove('spin');
     if(i>=steps){rowEl(target).classList.add('spin');sfx('land');setTimeout(()=>{rowEl(target).classList.remove('spin');S.busy=false;openQuestion(target)},650);return}
     let j;do{j=idle[Math.random()*idle.length|0]}while(idle.length>1&&j===prev);if(i===steps-1)j=target;
@@ -480,7 +480,7 @@ function openQuestion(j){stopSounds();S.mode='row';S.cur=j;S.answerer=S.turn;S.j
   renderQTeams();setJudgeBtns();show('scrQ');resetRing(cfg.time);
   sfx('question');const d=custom.question?Math.min(4,custom.question.audio.duration||2):1.5;
   setTimeout(()=>{if(S.screen==='scrQ'&&S.mode==='row'&&S.cur===j&&!S.judged){stopOne('question');startTimer(cfg.time)}},d*1000)}
-function openKeyword(){if(S.done)return;stopSounds();audio();S.mode='key';S.cur=-1;S.judged=false;
+function openKeyword(){if(S.done)return;stopSounds();audio();prime();S.mode='key';S.cur=-1;S.judged=false;
   const avail=S.teams.findIndex((t,i)=>!t.out&&i>=S.turn);S.answerer=avail>=0?avail:Math.max(0,S.teams.findIndex(t=>!t.out));
   $('qTag').textContent='Câu hỏi từ khóa';$('qLen').textContent='11 chữ cái';
   renderBoxes(KEYWORD,k=>S.rows[k]==='right');$('qText').textContent=KEY_Q;$('qHint').textContent=KEY_HINT;$('qHint').hidden=!S.center;
@@ -491,10 +491,10 @@ function openKeyword(){if(S.done)return;stopSounds();audio();S.mode='key';S.cur=
 /* ---------- đồng hồ ---------- */
 function resetRing(sec){stopTimer();const r=$('ring');r.className='ring';r.style.setProperty('--p',1);$('sec').textContent=sec}
 function startTimer(sec){stopTimer();timer.total=sec;timer.end=performance.now()+sec*1000;timer.last=sec;timer.running=true;$('sec').textContent=sec;
-  if(custom.think)sfx('think');
+  timer.think=false;if(custom.think&&!muted){timer.think=true;const p=sfx('think');if(p&&p.catch)p.catch(()=>{timer.think=false})}
   const loop=now=>{if(!timer.running)return;const left=Math.max(0,(timer.end-now)/1000);const s=Math.ceil(left);
     $('ring').style.setProperty('--p',left/timer.total);
-    if(s!==timer.last){timer.last=s;$('sec').textContent=s;const u=s<=3;$('ring').classList.toggle('urgent',u&&s>0);if(s>0&&(!custom.think||u))sfx('tick',u)}
+    if(s!==timer.last){timer.last=s;$('sec').textContent=s;const u=s<=3;$('ring').classList.toggle('urgent',u&&s>0);if(s>0&&(!timer.think||u))sfx('tick',u)}
     if(left<=0){timer.running=false;stopOne('think');sfx('timeup');const r=$('ring');r.classList.remove('urgent');r.classList.add('over');$('sec').textContent='Hết giờ';return}
     timer.raf=requestAnimationFrame(loop)};timer.raf=requestAnimationFrame(loop)}
 function stopTimer(){timer.running=false;cancelAnimationFrame(timer.raf);stopOne('think')}
@@ -546,10 +546,22 @@ function renderSlots(){$('slots').replaceChildren(...SLOTS.map(([k,label,when])=
 $('filePick').onchange=async e=>{const f=e.target.files[0];if(!f||!pickSlot)return;setCustom(pickSlot,f.name,f);renderSlots();await dbPut(pickSlot,{name:f.name,blob:f})};
 function openMusic(){audio();renderSlots();openDlg($('musicBox'))}
 $('musicBtn').onclick=openMusic;$('introMusic').onclick=openMusic;$('musicClose').onclick=()=>{stopSounds();closeDlg($('musicBox'))};
-dbAll().then(all=>{Object.keys(all).forEach(k=>{const v=all[k];if(v&&v.blob)setCustom(k,v.name,v.blob)})});
+/* Khi chạy trên máy (localhost / file) game tự lấy nhạc trong thư mục ../audio/ nếu có.
+   Trên GitHub Pages không tìm (nhạc gốc không được đăng công khai). File nạp bằng nút 🎵 luôn được ưu tiên. */
+const LOCAL_DIR='../audio/';
+const LOCAL={opening:'nhac-mo-dau.mp3',question:'mo-cau-hoi.mp3',think:'cho-thi-sinh-tra-loi.mp3',tick:'tieng-dem-giay.mp3',timeup:'het-gio.mp3',
+  correct:'tra-loi-dung.mp3',wrong:'tra-loi-sai.mp3',piece:'mo-manh-ghep.mp3',keyword:'cau-hoi-tu-khoa.mp3',fanfare:'cong-bo-tu-khoa.mp3'};
+function loadLocal(){if(/github.io$/.test(location.hostname))return;
+  Object.keys(LOCAL).forEach(k=>{try{const a=new Audio();a.preload='auto';
+    a.addEventListener('canplaythrough',()=>{if(!custom[k])custom[k]={name:LOCAL[k]+' (thư mục audio)',url:null,audio:a,local:true}},{once:true});
+    a.addEventListener('error',()=>{},{once:true});a.src=LOCAL_DIR+LOCAL[k]}catch(e){}})}
+dbAll().then(all=>{Object.keys(all).forEach(k=>{const v=all[k];if(v&&v.blob)setCustom(k,v.name,v.blob)})}).then(loadLocal,loadLocal);
+/* mở khóa phát nhạc ngay trong lúc người dùng bấm (cần cho iPhone/Safari) */
+function prime(){['think','question','keyword','timeup','correct','wrong','piece','fanfare'].forEach(k=>{const c=custom[k];if(!c||c.primed||!c.audio.paused)return;
+  const a=c.audio;a.muted=true;try{const p=a.play();if(p&&p.then)p.then(()=>{if(a.muted){a.pause();a.currentTime=0;a.muted=false}c.primed=true}).catch(()=>{a.muted=false});else{a.pause();a.muted=false}}catch(e){a.muted=false}})}
 
 /* ---------- sự kiện ---------- */
-function startGame(){audio();fresh();buildBoard();renderBoard();show('scrBoard');sfx('opening')}
+function startGame(){audio();prime();fresh();buildBoard();renderBoard();show('scrBoard');sfx('opening')}
 $('startBtn').onclick=startGame;
 $('randBtn').onclick=spin;$('keyBtn').onclick=openKeyword;
 $('okBtn').onclick=()=>judge(true);$('noBtn').onclick=()=>judge(false);
