@@ -167,7 +167,6 @@ header{display:flex;align-items:center;justify-content:space-between;gap:12px;ma
 @keyframes shake{20%,60%{transform:translateX(-8px)}40%,80%{transform:translateX(8px)}}
 
 /* ---------- settings ---------- */
-.introSum{margin-top:14px;color:var(--muted);font-size:15px}
 .linkBtn{background:none;border:0;color:var(--gold2);font-weight:700;text-decoration:underline;text-underline-offset:3px;padding:4px}
 .muteDot{margin-left:4px;font-size:13px}
 .setGroup{margin-top:18px}
@@ -261,7 +260,6 @@ dialog[open] .pop{animation:pop .3s cubic-bezier(.2,1.4,.4,1)}
     <div class="introBtns">
       <button class="btn gold" id="startBtn">Bắt đầu →</button>
     </div>
-    <p class="introSum"><span id="introSum"></span> · <button class="linkBtn" id="introSet" type="button">⚙️ Thay đổi</button></p>
   </div>
 </section>
 
@@ -552,7 +550,7 @@ function confetti(){if(matchMedia('(prefers-reduced-motion: reduce)').matches)re
 /* ---------- nạp nhạc ---------- */
 let pickSlot=null;
 function updateSettingsUI(){const n=SLOTS.filter(([k])=>custom[k]).length;$('musicCount').textContent=n?'· '+n+'/'+SLOTS.length+' mục đã có nhạc':'';
-  $('teamsNote').hidden=S.screen==='scrIntro';$('introSum').textContent=cfg.teams+' tổ · '+cfg.time+' giây/câu';
+  $('teamsNote').hidden=S.screen==='scrIntro';
   $('soundBtn').textContent=muted?'🔇 Âm thanh: Tắt':'🔊 Âm thanh: Bật';$('muteDot').hidden=!muted;
   $('fsBtn').textContent=document.fullscreenElement?'⛶ Thoát toàn màn hình':'⛶ Toàn màn hình'}
 function openSettings(){audio();renderSlots();updateSettingsUI();openDlg($('setBox'))}
@@ -563,7 +561,7 @@ function renderSlots(){$('slots').replaceChildren(...SLOTS.map(([k,label,when])=
   acts.append(play,pick);if(c){const del=el('button',null,'✕');del.type='button';del.title='Xoá';del.onclick=()=>{clearCustom(k);dbPut(k,null);renderSlots();updateSettingsUI()};acts.append(del)}
   r.append(acts);return r}))}
 $('filePick').onchange=async e=>{const f=e.target.files[0];if(!f||!pickSlot)return;setCustom(pickSlot,f.name,f);renderSlots();updateSettingsUI();await dbPut(pickSlot,{name:f.name,blob:f})};
-$('setBtn').onclick=openSettings;$('introSet').onclick=openSettings;$('setClose').onclick=()=>{stopSounds();closeDlg($('setBox'))};
+$('setBtn').onclick=openSettings;$('setClose').onclick=()=>{stopSounds();closeDlg($('setBox'))};
 /* Khi chạy trên máy (localhost / file) game tự lấy nhạc trong thư mục ../audio/ nếu có.
    Trên GitHub Pages không tìm (nhạc gốc không được đăng công khai). File nạp bằng nút 🎵 luôn được ưu tiên. */
 const LOCAL_DIR='../audio/';
