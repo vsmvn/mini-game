@@ -254,6 +254,30 @@ dialog[open] .pop{animation:pop .3s cubic-bezier(.2,1.4,.4,1)}
 .confetti{position:fixed;top:0;left:0;right:0;bottom:0;pointer-events:none;z-index:95;overflow:hidden}
 .confetti i{position:absolute;top:-20px;width:10px;height:16px;border-radius:2px;animation:fall linear forwards}
 @keyframes fall{to{transform:translateY(110vh) rotate(720deg)}}
+#splash{position:fixed;inset:0;z-index:200;display:grid;place-items:center;padding:24px;text-align:center;
+  background:radial-gradient(120% 90% at 50% 0%,#1d4f8f 0%,#0b2549 55%,#06142b 100%);transition:opacity .6s ease,visibility .6s}
+#splash.out{opacity:0;visibility:hidden}
+#splash::before{content:"";position:absolute;inset:0;pointer-events:none;opacity:.35;
+  background:repeating-conic-gradient(from 0deg at 50% 38%,#ffffff07 0 6deg,transparent 6deg 12deg);animation:spRot 40s linear infinite}
+.spBox{position:relative;width:min(420px,100%);display:flex;flex-direction:column;align-items:center}
+.spLogo{position:relative;width:118px;height:118px;display:grid;place-items:center;margin-bottom:22px}
+.spLogo::before{content:"";position:absolute;inset:0;border-radius:50%;padding:4px;background:conic-gradient(from 0deg,transparent 0 30%,#f5c04a 60%,#ffe7a3 70%,transparent 75%);
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;animation:spRot 1.6s linear infinite}
+.spLogo::after{content:"";position:absolute;inset:-18px;border-radius:50%;background:radial-gradient(circle,#f5c04a40,transparent 65%);animation:spGlow 2.4s ease-in-out infinite}
+.spLogo .logo{width:84px;height:84px;font-size:40px;position:relative;z-index:1}
+.spSub{font-size:12px;font-weight:800;letter-spacing:.32em;color:var(--gold2);text-transform:uppercase;margin-bottom:6px}
+.spTitle{font-size:clamp(24px,6vw,34px);font-weight:900;line-height:1.15;margin-bottom:4px;
+  background:linear-gradient(180deg,#fff,#cfe0ff);-webkit-background-clip:text;background-clip:text;color:transparent}
+.spGame{font-size:15px;color:var(--muted);font-weight:600;margin-bottom:26px}
+.spBar{width:100%;height:8px;border-radius:99px;background:#ffffff14;overflow:hidden;box-shadow:inset 0 0 0 1px #ffffff12}
+.spBar i{display:block;height:100%;width:0;border-radius:inherit;background:linear-gradient(90deg,#f0ae2c,#ffd76e,#fff2c4);box-shadow:0 0 14px #f5c04a99;transition:width .35s ease}
+.spMeta{width:100%;display:flex;justify-content:space-between;gap:12px;margin-top:10px;font-size:13px;color:var(--muted)}
+.spMeta b{color:var(--gold2);font-variant-numeric:tabular-nums}
+#spWhat{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:left}
+#spSkip{margin-top:22px;background:none;border:1px solid #ffffff2e;color:var(--muted);border-radius:99px;padding:8px 18px;font-size:13px;font-weight:700;opacity:0;pointer-events:none;transition:opacity .4s}
+#spSkip.show{opacity:1;pointer-events:auto}#spSkip:hover{color:#fff;border-color:#ffffff66}
+@keyframes spRot{to{transform:rotate(360deg)}}@keyframes spGlow{50%{opacity:.45;transform:scale(.92)}}
+@media (prefers-reduced-motion:reduce){#splash::before,.spLogo::before,.spLogo::after{animation:none}}
 .toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:96;background:#0b264a;border:1px solid var(--gold);border-radius:999px;padding:10px 18px;font-weight:700;box-shadow:0 10px 30px #0009;animation:rise .3s}
 
 @supports not (aspect-ratio:1/1){.cell{height:calc((min(100vw,820px) - 60px)/18)}.photo{height:0;padding-top:65.8%}.qb{height:clamp(30px,3.8vw,58px)}}
@@ -285,6 +309,17 @@ dialog[open] .pop{animation:pop .3s cubic-bezier(.2,1.4,.4,1)}
 </style>
 </head>
 <body>
+<div id="splash" role="status" aria-live="polite">
+  <div class="spBox">
+    <div class="spLogo"><div class="logo">O</div></div>
+    <div class="spSub">Đường lên đỉnh</div>
+    <div class="spTitle">OLYMPIA</div>
+    <div class="spGame">Vượt chướng ngại vật</div>
+    <div class="spBar"><i id="spFill"></i></div>
+    <div class="spMeta"><span id="spWhat">Đang tải tài nguyên…</span><b id="spPct">0%</b></div>
+    <button id="spSkip" type="button">Bỏ qua ›</button>
+  </div>
+</div>
 <header>
   <div class="brand"><div class="logo">O</div><div><b>OLYMPIA</b><h1>Vượt chướng ngại vật</h1></div></div>
   <div class="tools">
@@ -608,7 +643,7 @@ const VOICE={list:{},cur:null,token:0,
     const end=()=>{if(fin||tk!==this.token)return;fin=true;this.cur=null;$('ring').classList.remove('reading');done()};
     if(!a||!voiceOn||muted){end();return}
     this.cur=a;$('ring').classList.add('reading');$('sec').textContent='🔊';
-    try{a.currentTime=0;a.onended=()=>setTimeout(end,350);const p=a.play();if(p&&p.catch)p.catch(end)}catch(e){end()}
+    try{a.muted=false;a.currentTime=0;a.onended=()=>setTimeout(end,350);const p=a.play();if(p&&p.catch)p.catch(end)}catch(e){end()}
     setTimeout(end,((a.duration||30)+3)*1000)},
   stop(){this.token++;if(this.cur){try{this.cur.pause()}catch(e){}this.cur=null}$('ring').classList.remove('reading')},
   get reading(){return !!this.cur}};
@@ -700,15 +735,20 @@ function srcWithFallback(a,path,fail){const urls=[path];if(!/github\.io$/.test(l
   const next=()=>{if(i>=urls.length){fail&&fail();return}a.src=urls[i++];try{a.load()}catch(e){}};
   a.addEventListener('error',function h(){if(i<urls.length)next();else{a.removeEventListener('error',h);fail&&fail()}});next()}
 const LOCAL={opening:'nhac-mo-dau.mp3',question:'mo-cau-hoi.mp3',think:'cho-thi-sinh-tra-loi.mp3',tick:'tieng-dem-giay.wav',timeup:'het-gio.wav',correct:'tra-loi-dung.wav',piece:'mo-manh-ghep.wav'};
-function loadLocal(){
+let localStarted=false;
+function loadLocal(){localStarted=true;
   Object.keys(LOCAL).forEach(k=>{try{const a=new Audio();a.preload='auto';
     if(custom[k])return;const c={name:LOCAL[k]+' (nhạc gốc)',url:null,audio:a,local:true};custom[k]=c;
     srcWithFallback(a,LOCAL_DIR+LOCAL[k],()=>{if(custom[k]===c){delete custom[k];if(typeof renderSlots==='function'&&isOpen($('setBox')))renderSlots()}})}catch(e){}});if(typeof updateSettingsUI==='function')try{updateSettingsUI()}catch(e){}}
 {let localDone=false;const goLocal=()=>{if(!localDone){localDone=true;loadLocal()}};setTimeout(goLocal,1500);
   dbAll().then(all=>{Object.keys(all||{}).forEach(k=>{const v=all[k];if(v&&v.blob)setCustom(k,v.name,v.blob)})}).then(goLocal,goLocal)}
 /* mở khóa phát nhạc ngay trong lúc người dùng bấm (cần cho iPhone/Safari) */
-function prime(){['think','question','keyword','timeup','correct','wrong','piece','fanfare'].forEach(k=>{const c=custom[k];if(!c||c.primed||!c.audio.paused)return;
-  const a=c.audio;a.muted=true;try{const p=a.play();if(p&&p.then)p.then(()=>{if(a.muted){a.pause();a.currentTime=0;a.muted=false}c.primed=true}).catch(()=>{a.muted=false});else{a.pause();a.muted=false}}catch(e){a.muted=false}})}
+/* iPhone: mỗi thẻ audio phải được "mở khóa" bằng 1 lần chạm (phát câm rồi dừng) mới tự phát được về sau */
+function primeEl(a){if(!a||a.__primed||a.__priming||!a.paused)return;a.__priming=true;a.muted=true;
+  const fin=()=>{a.__priming=false;if(a.muted){try{a.pause();a.currentTime=0}catch(e){}a.muted=false}};
+  try{const p=a.play();if(p&&p.then)p.then(()=>{a.__primed=true;fin()}).catch(()=>{a.__priming=false;a.muted=false});else{a.__primed=true;fin()}}catch(e){a.__priming=false;a.muted=false}}
+function prime(){['think','question','keyword','timeup','correct','wrong','piece','fanfare','tick'].forEach(k=>{const c=custom[k];if(c)primeEl(c.audio)});
+  if(typeof VOICE!=='undefined')Object.keys(VOICE.list).forEach(n=>primeEl(VOICE.list[n]))}
 
 /* ================= TRẢ LỜI BẰNG ĐIỆN THOẠI (PeerJS · WebRTC) =================
    Máy chiếu là "chủ phòng"; điện thoại mở trang tra-loi.html?h=<mã phòng>.
@@ -871,9 +911,31 @@ function restoreGame(){let sv;try{sv=JSON.parse(localStorage.getItem('vcnv.save'
   buildBoard();show('scrBoard');renderBoard();S.rows.forEach((st,j)=>{if(st==='right')fillRow(j);else if(S.done)fillRow(j,true)});
   setTimeout(()=>toast('Đã khôi phục ván đang chơi · muốn chơi mới: Cài đặt → Chơi lại'),400);return true}
 restoreGame();
+/* mọi lần chạm đều mở khóa âm thanh (iPhone) — kể cả sau khi khôi phục ván */
+document.addEventListener('pointerdown',()=>{try{audio();prime()}catch(e){}},{passive:true,capture:true});
+
+/* ---------- màn hình chờ: theo dõi phông chữ + nhạc + giọng đọc ---------- */
+(function(){const sp=$('splash');if(!sp)return;const t0=performance.now();let fontsOk=false,done=false;
+  try{document.fonts&&document.fonts.ready.then(()=>{fontsOk=true})}catch(e){fontsOk=true}if(!document.fonts)fontsOk=true;
+  const label={};SLOTS.forEach(([k,l])=>label[k]=l);
+  const items=()=>{const out=[];Object.keys(custom).forEach(k=>{if(custom[k].local)out.push([label[k]||k,custom[k].audio])});
+    Object.keys(VOICE.list).sort().forEach(n=>out.push([n==='tu-khoa'?'Giọng đọc câu từ khóa':'Giọng đọc câu '+(+n.slice(4)),VOICE.list[n]]));return out};
+  const ok=a=>a.readyState>=3||!!a.error||a.networkState===3;
+  const finish=()=>{if(done)return;done=true;sp.classList.add('out');setTimeout(()=>sp.remove(),700)};
+  $('spSkip').onclick=finish;setTimeout(()=>{const b=$('spSkip');if(b)b.classList.add('show')},3000);
+  const tick=()=>{if(done)return;const el=performance.now()-t0,list=items();
+    const n=list.filter(([,a])=>ok(a)).length,total=list.length+1,got=n+(fontsOk?1:0);
+    const ready=localStarted&&fontsOk&&n===list.length;
+    /* trình duyệt không tải trước âm thanh (iPhone, tiết kiệm dữ liệu): không chờ mãi */
+    const stalled=el>4000&&list.length&&list.every(([,a])=>a.readyState===0&&a.networkState!==2);
+    let pct=Math.round(got/total*100);if(!localStarted)pct=Math.min(pct,15);if(!ready)pct=Math.min(pct,98);
+    $('spFill').style.width=Math.max(6,pct)+'%';$('spPct').textContent=pct+'%';
+    const next=list.find(([,a])=>!ok(a));$('spWhat').textContent=!fontsOk?'Đang tải phông chữ…':next?'Đang tải: '+next[0]+'…':localStarted?'Sẵn sàng!':'Đang chuẩn bị…';
+    if((ready&&el>900)||stalled||el>15000){$('spFill').style.width='100%';$('spPct').textContent='100%';setTimeout(finish,ready?250:0);return}
+    setTimeout(tick,120)};tick()})();
 
 /* ---------- tự cập nhật: trình duyệt (nhất là Zalo) hay giữ bản cũ -> so với version.txt trên máy chủ ---------- */
-const BUILD='20261110140046';
+const BUILD='20261110140454';
 (function(){if(!/^https?:/.test(location.protocol))return;try{
   fetch('version.txt?t='+Date.now(),{cache:'no-store'}).then(r=>r.ok?r.text():'').then(v=>{v=(v||'').trim();if(!v||v===BUILD)return;
     const key='vcnv.upd.'+v;if(sessionStorage.getItem(key))return;sessionStorage.setItem(key,'1');
